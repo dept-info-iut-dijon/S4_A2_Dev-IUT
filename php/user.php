@@ -1,0 +1,6 @@
+<?php
+    session_start();
+    $retour = array("login"=>$_SESSION["login"],"nom"=>$_SESSION["name"], "statut"=>$_SESSION["statut"], "departement"=>$_SESSION["departement"] );
+    echo json_encode($retour);
+
+?>

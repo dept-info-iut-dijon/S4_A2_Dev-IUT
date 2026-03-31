@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Logiciels IUT informatique</title>
+    <meta charset="utf-8" />
+    <link href="css/styles.css" rel="stylesheet" />
+    <link href="css/index.css" rel="stylesheet" />
+</head>
+<body>    
+ 
+    <main class="vertical-layout">
+        <h2 class="center">Bienvenue sur le site de gestion des logiciels du département informatique !</h2>
+        
+
+ 
+
+    <!-- login -->
+  <div class="login-container">
+    <h2>Connexion</h2>
+    <div >
+      <label for="user">Utilisateur</label>
+      <input type="text" id="user" name="user" required>
+
+      <label for="pass">Mot de passe</label>
+      <input type="password" id="pass" name="pass" required>
+      <button type="submit">Se connecter</button>
+    </div>
+  </div>
+            
+    <div class="slides">                
+        <img src="img/iut1.jpg" alt="" class="active">
+        <img src="img/iut2.jpg" alt="">
+        <img src="img/iut3.jpeg" alt="">
+        <img src="img/iut4.jpg" alt="">
+    </div>                
+
+  </main>
+    <!-- Nag screen -->
+  <div class="nag-overlay" id="nagScreen">
+    <div class="nag-box">
+      <div class="nag-title">Un petit instant…</div>
+      <div class="nag-text">
+        Nous préparons votre espace.  
+        Merci de patienter quelques secondes .
+      </div>      
+    </div>
+  </div>
+
+  
+
+    <div w3-include-html="footer.html"></div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/views/index.js"></script> 
+    <script src="js/lib/jquery.js"></script>
+    <script src="js/models/Utilisateur.js"></script>
+    <script src="js/sgbd/UtilisateurStorage.js"></script>
+    <script src="js/sgbd/UtilisateurDao.js"></script>    
+    <script src="js/sgbd/Login.js"></script>
+</body>
+</html>

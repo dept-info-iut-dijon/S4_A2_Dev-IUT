@@ -1,0 +1,158 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Logiciels IUT informatique</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <link href="css/accueil.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>    
+     
+
+    <div w3-include-html="header.html"></div>
+
+    <main>
+
+        <div class="content container-fluid">
+            <div class="row margin-small">                
+                <input type="text" class="full col" id="name" placeholder="saisir le nom du logiciel" />
+            </div>
+            <div class="row margin-small">
+                <div class="col-md row align-items-center">                    
+                    <input type="text" class="full col" id="type" placeholder="saisir le type du logiciel" list="listtype" >
+                    <datalist id="listtype">
+                        <option>EDI</option>
+                        <option>Compilateur</option>
+                        <option>Gestion de BDD</option>
+                        <option>Utilitaire système</option>
+                        <option>Outil bureautique</option>
+                        <option>Gestion de projet</option>
+                        <option>Accessoire</option>
+                    </datalist>
+
+                </div>
+                <div class="col-md row align-items-center">                    
+                    <input class="col full" type="text" id="version" placeholder="saisir la version du logiciel" />
+                </div>                
+            </div>
+            
+            <div class="row margin-small align-items-center">
+                <div class="col-md row">                    
+                    <input id="serie" class="full col-md" placeholder="saisir le numéro de série" />
+                </div>
+                <div class="col-md row justify-content-center">
+                    <input type="checkbox" id="obsolete" class="margin-small" />
+                    <label for="obsolete">Logiciel obsolète (ne sera plus installé)</label>
+                </div>                
+            </div>
+            <hr/>
+
+            <div class="row margin-small">
+                <div class="col-md " >
+                    <label for="years" class="centerContent">Filières utilisant ce logiciel :</label>
+                    <div id="years" class="col borders" >
+                        <!-- une checkbox par filière de la base (dynamiques) -->                        
+                        <div class="year">
+                            <label >BUT1 <input type="checkbox" checked value="1" /></label>
+                         </div>
+                        <div class="year">
+                            <label>BUT2 <input type="checkbox" value="2"/></label>
+                        </div>
+                        <div class="year">
+                            <label>BUT3 <input type="checkbox" value="3"/></label>
+                        </div>                        
+                    </div>
+                </div>
+                <div class="col-md">                    
+                    <label for="courses" class="centerContent">Matières :</label>
+                    <select id="courses" class="col listitem borders" size="6">
+                        <!-- liste avec les matières de la base -->
+                        <option class="course" value="1">Développement</option>
+                        <option class="course" value="2">Déploiement</option>
+                        <option class="course" value="3">Administration</option>                        
+                        <option class="course" value="4">Gestion de projet</option>
+                    </select>                    
+                </div>
+                <div class="col-md align-self-center row justify-content-around">
+                    <button id="add" class="col-4">ajouter</button>
+                    <button id="remove" class="col-4">retirer</button>
+                </div>
+                <div class="col-md">
+                    <label for="uses" class="centerContent">Utilisant ce logiciel :</label>
+                    <select id="uses" class="col listitem borders" size="6">
+                        <!-- liste avec les matières utilisées -->
+                       <!-- <option class="course" value="4">Gestion données</option> -->
+                    </select>
+                </div>                
+            </div>
+            <hr/>
+                <div class="row">
+                    <label for="desc" class="col-md-auto right">Description du logiciel</label>
+                    <textarea id="desc" class="full col" ></textarea>
+                </div>
+            <hr/>
+                <div class="row justify-content-around">
+                    <div class="col-md">                        
+                        <label for="urlSetup" class="emphase">Téléverser l'archive d'installation :</label><br />
+                        <div id="setup">
+                            <label id="setupName" class="url" ></label>
+                            <input type="file" id="urlSetup" ><br />
+                            <input type="range" id="rangeSetup" min="0" max="100" class="hide" readonly />
+                        </div>                        
+                    </div>
+                    <div class="col-md">                        
+                        <label for="urlTuto" class="emphase">Téléverser le tutoriel d'installation :</label><br />
+                        <div id="tuto">
+                            <label id="tutoName" class="url" > </label>
+                            <input type="file" id="urlTuto" /><br />
+                            <input type="range" id="rangeTuto" min="0" max="100" class="hide" readonly />
+                        </div>                        
+                    </div>
+                    <div class="col-md">                        
+                        <label for="urlTuto" class="emphase">Téléverser la version portable :</label><br />
+                        <div id="port">
+                            <label id="portableName" class="url" > </label>
+                            <input type="file" id="urlPort" /><br />
+                            <input type="range" id="rangePort" min="0" max="100" class="hide" readonly />
+                        </div>                        
+                    </div>
+                    <div class="col-md">                        
+                        <label for="urlImage" class="emphase">Téléverser l'image/le logo : :</label><br />
+                        <div id="image">
+                            <img id="thumb" />
+                            <input type="file" id="urlImage" /><br />
+                            <input type="range" id="rangeImage" min="0" max="100" class="hide" readonly />
+                        </div>                        
+                    </div>
+                </div>
+            <hr/>
+                <div class="row justify-content-around">
+                    <button id="cancel" class="col-auto">Annuler</button>
+                    <button id="ok" class="col-auto">Valider</button>
+                </div>
+        </div>
+            
+    </main>
+
+    <div w3-include-html="footer.html"></div>           
+    <script src="js/lib/jquery.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/models/Filiere.js"></script>
+    <script src="js/models/Matiere.js"></script>
+    <script src="js/models/Logiciel.js"></script>
+    <script src="js/sgbd/FiliereDao.js"></script>
+    <script src="js/sgbd/MatieresDAO.js"></script>
+    <script src="js/sgbd/UtilisateurDao.js"></script>
+    <script src="js/sgbd/LogicielDao.js"></script>
+    <script src="js/views/VueLogicielsVM.js"></script>
+    <script src="js/models/Utilisateur.js"></script>    
+    <script src="js/sgbd/UtilisateurStorage.js"></script>
+
+    <script src="js/views/VueHeader.js"></script>
+    <script src="js/views/VueFiche.js"></script>
+</body>
+</html> 

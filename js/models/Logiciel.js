@@ -1,0 +1,123 @@
+/**
+ * Représente un logiciel
+ * */
+class Logiciel {
+    get id() {
+        return this._id;
+    }
+    set id(value) {
+        this._id = value;
+    }
+    get nom() {
+        return this._nom;
+    }
+    set nom(value) {
+        this._nom = value;
+    }
+    get version() {
+        return this._version;
+    }
+    set version(value) {
+        this._version = value;
+    }
+    get comment() {
+        return this._comment;
+    }
+    set comment(value) {
+        this._comment = value;
+    }
+    get urlSetup() {
+        return this._urlSetup;
+    }
+    set urlSetup(value) {
+        this._urlSetup = value;
+    }
+    get urlTuto() {
+        return this._urlTuto;
+    }
+    set urlTuto(value) {
+        this._urlTuto = value;
+    }
+    get visible() {
+        return this._visible;
+    }
+    set visible(value) {
+        this._visible = value;
+    }
+    get nomVersion() {
+        let add = "";
+        if (this.obsolete)
+            add = " (obsolete)";
+        return this.nom + " " + this.version + add;
+    }
+    get type() {
+        return this._type;
+    }
+    set type(value) {
+        this._type = value;
+    }
+    get date_ajout() {
+        return this._date_ajout;
+    }
+    set date_ajout(value) {
+        this._date_ajout = value;
+    }
+    get estNouveau() {
+        return this.id == 0;
+    }
+    get numero_serie() {
+        return this._numero_serie;
+    }
+    set numero_serie(value) {
+        this._numero_serie = value;
+    }
+    constructor() {
+        this.id = 0;
+        this.urlSetup = "";
+        this.urlTuto = "";
+        this.urlPort = "";
+        this.urlImage = "";
+        this.obsolete = false;
+        this.date_ajout = new Date();
+    }
+    get urlPort() {
+        return this._urlPort;
+    }
+    set urlPort(value) {
+        this._urlPort = value;
+    }
+    get urlImage() {
+        return this._urlImage;
+    }
+    set urlImage(value) {
+        this._urlImage = value;
+    }
+    get obsolete() {
+        return this._obsolete;
+    }
+    set obsolete(value) {
+        this._obsolete = value;
+    }
+    get utilisateur() {
+        return this._utilisateur;
+    }
+    set utilisateur(value) {
+        this._utilisateur = value;
+    }
+    /**
+     * Indique si le logiciel est récent
+     * Récent : demandé l'année universitaire précédente
+     * Par exemple, en 2023-2024, les logiciels "récents" sont ceux demandés après le 1/9/2022
+     */
+    get estRecent() {
+        let now = new Date();
+        let year = now.getFullYear();
+        let month = now.getMonth() - 1; // car janvier=0
+        if (month >= 9 && month <= 12) // debut de l'année
+            year -= 2;
+        else // année suivante
+            year -= 1;
+        let old = new Date(year, 9, 1);
+        return old < this.date_ajout;
+    }
+}

@@ -1,0 +1,14 @@
+class Filiere {
+    get id() {
+        return this._id;
+    }
+    set id(value) {
+        this._id = value;
+    }
+    get nom() {
+        return this._nom;
+    }
+    set nom(nom) {
+        this._nom = nom;
+    }
+}

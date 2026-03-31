@@ -1,0 +1,9 @@
+﻿################################################################################
+# Ce fichier .gitignore a été automatiquement créé par Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/Softs.phpproj.user
+/.vscode
+node_modules
+.idea

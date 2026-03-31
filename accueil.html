@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, height=device-height initial-scale=1">
+    <title>Logiciels IUT informatique</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <link href="css/accueil.css" rel="stylesheet" />
+</head>
+<body>    
+    <div id="page">
+    
+    <div w3-include-html="header.html"></div>
+
+    <main>
+        <div class="side">
+            <h2>Liste des logiciels</h2>
+            <div class="item">
+                <input type="radio" name="filter" value="all" id="all" />
+                 <label for="all">Tout</label>
+            </div>
+            <div class="item">
+                <input type="radio" name="filter" value="year" id="year" />
+                 <label for="year">Filtrer par filière</label>
+                <select id="years" disabled>
+                </select>
+            </div>
+            <div class="item">
+                <input type="radio" name="filter" value="course" id="course" />
+                 <label for="course">Filtrer par matière</label>
+                <select id="courses" disabled>
+                </select>
+            </div>
+            <div class="item">
+                <input type="radio" name="filter" value="name" id="name" />
+                 <label for="name">Filtrer par nom</label>
+                <input type="text" id="filtrer" disabled />
+            </div>
+            <div class="item">
+                <input type="checkbox" name="filtre_portable" id="fport" />
+                <label for="fport">Ne conserver que les logiciels portables</label>
+            </div>
+            <div class="item">
+                <input type="checkbox" name="filtre_obsolete" id="fobsolete" checked />
+                <label for="fobsolete">Cacher les logiciels obsolètes</label>
+            </div>
+            <div class="item admin">
+                <input type="checkbox" name="recents" id="cb_recent" />
+                <label for="cb_recent">Ne conserver que les nouveaux logiciels</label>
+            </div>
+            
+            <div class="list">
+            </div>
+            <div class="teacher centerContent hide">
+                <label id="add" class="link">Proposer un logiciel</label>
+            </div>
+        </div>
+        <div class="content">
+
+            <div id="software" class="software">                
+            </div>
+
+            <div id="actions" class="fillContent hide">
+                <label id="modify" class="admin link" >Modifier la fiche</label>
+                <label class="admin link" id="delete">Supprimer la fiche</label>
+            </div>
+        </div>
+        
+    </main> 
+
+    <div w3-include-html="footer.html"></div>
+    </div>
+    <script src="js/lib/jquery.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/models/Filiere.js"></script>
+    <script src="js/models/Matiere.js"></script>
+    <script src="js/models/Logiciel.js"></script>
+    <script src="js/sgbd/UtilisateurDao.js"></script>
+    <script src="js/sgbd/FiliereDao.js"></script>
+    <script src="js/sgbd/MatieresDAO.js"></script>
+    <script src="js/sgbd/LogicielDao.js"></script>
+    <script src="js/views/VueLogicielsVM.js"></script>
+    <script src="js/models/Utilisateur.js"></script>
+    <script src="js/views/VueLogiciels.js"></script>
+    <script src="js/sgbd/UtilisateurStorage.js"></script>
+    <script src="js/views/VueHeader.js"></script>
+    <script src="js/sgbd/Login.js"></script>
+</body>
+</html>
