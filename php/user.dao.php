@@ -31,7 +31,7 @@ class UserDao
      */
     public function addUser($user){        
         $added=false;
-        $req = "INSERT INTO Utilisateur(login,nom,statut,departement,role) VALUES(?,?,?,?,1);";
+        $req = "INSERT INTO Utilisateur(login,nom,statut,departement,role) VALUES(?,?,?,?,2);";
         $this->bdd->execute($req,[$user["login"],$user["nom"],$user["statut"],$user["departement"]]);
         $added=true;
         return $added;
