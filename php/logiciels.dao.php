@@ -143,14 +143,21 @@ class LogicielsDao
      */
     public function addLogiciel($log)
     {
+        // D4 : le numéro de série ne doit contenir que des lettres, chiffres et tirets
+        $numeroSerie = $log["numero_serie"] ?? "";
+        if ($numeroSerie !== "" && !preg_match('/^[A-Za-z0-9\-]+$/', $numeroSerie)) {
+            throw new Exception("Format du numéro de série invalide");
+        }
+
         $req = "SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?;";
-        if(constant("mode_dev"))
-            $bdname="softs";
+        // D6 : correction de la condition inversée (mode_dev = true → base de dev)
+        if (constant("mode_dev"))
+            $bdname = "softs_dev";
         else
-            $bdname="softs_dev";
-        $val = $this->bdd->queryOne($req,["$bdname","Logiciel"]);
+            $bdname = "softs";
+        $val = $this->bdd->queryOne($req, ["$bdname", "Logiciel"]);
         $req = "INSERT INTO Logiciel(id,nom,version, urlSetup, urlTuto, urlPort,comment,type,visible, urlImage, obsolete, Utilisateurlogin, numero_serie) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?);";
-        $this->bdd->execute($req,[$val["id"],$log["nom"],$log["version"],$log["urlSetup"],$log["urlTuto"],$log["urlPort"],$log["comment"],$log["type"],0,$log["urlImage"], $log["obsolete"],$log["user"],$log["numero_serie"]]);
+        $this->bdd->execute($req, [$val["id"], $log["nom"], $log["version"], $log["urlSetup"], $log["urlTuto"], $log["urlPort"], $log["comment"], $log["type"], 0, $log["urlImage"], $log["obsolete"], $log["user"], $numeroSerie]);
         return $val;
     }
 

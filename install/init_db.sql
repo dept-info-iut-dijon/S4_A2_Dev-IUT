@@ -48,17 +48,19 @@ CREATE TABLE `logiciel` (
   `ID` int NOT NULL,
   `nom` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
   `version` varchar(32) COLLATE utf8mb4_general_ci NOT NULL,
-  `urlsetup` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `urlsetup` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `urltuto` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `comment` varchar(1024) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `visible` int NOT NULL,
+  `visible` int NOT NULL CHECK (`visible` IN (0,1)),
   `Utilisateurlogin` varchar(16) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `type` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
   `urlPort` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `urlImage` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `obsolete` int NOT NULL DEFAULT '0',
+  `urlImage` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `obsolete` int NOT NULL DEFAULT '0' CHECK (`obsolete` IN (0,1)),
   `date_ajout` date NOT NULL,
-  `numero_serie` varchar(512) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `numero_serie` varchar(512) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `uq_nom_version` (`nom`, `version`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
