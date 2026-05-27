@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Permet de g�rer la persistance des donn�es de l'utilisateur
  */

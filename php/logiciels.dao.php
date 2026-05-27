@@ -23,7 +23,18 @@ class LogicielsDao
 
     private function selectBase()
     {
-        $req = "SELECT Logiciel.ID as id, Logiciel.nom as nom, Logiciel.version as version, Logiciel.urlsetup as urlSetup, Logiciel.urltuto as urlTuto, Logiciel.comment as comment, Logiciel.type as type, Logiciel.visible as visible, Logiciel.urlport as urlPort, Logiciel.urlImage as urlImage, Logiciel.obsolete as obsolete, Logiciel.Utilisateurlogin as utilisateur, Logiciel.date_ajout as date_ajout, Logiciel.numero_serie as numero_serie FROM Logiciel ";
+        $req = "SELECT Logiciel.ID as id, Logiciel.nom as nom, 
+        Logiciel.version as version, Logiciel.urlsetup as urlSetup, 
+        Logiciel.urltuto as urlTuto, Logiciel.comment as comment, 
+        Logiciel.type as type, Logiciel.visible as visible, 
+        Logiciel.urlport as urlPort, Logiciel.urlImage as urlImage, 
+        Logiciel.obsolete as obsolete, Logiciel.Utilisateurlogin as utilisateur,
+        Logiciel.date_ajout as date_ajout, Logiciel.numero_serie as numero_serie,
+        Utilisateur.nom as utilisateurNom, 
+        Utilisateur.statut as utilisateurStatut, 
+        Utilisateur.departement as utilisateurDepartement
+        FROM Logiciel 
+        LEFT JOIN Utilisateur ON Utilisateur.login = Logiciel.Utilisateurlogin ";
         return $req;
     }
 

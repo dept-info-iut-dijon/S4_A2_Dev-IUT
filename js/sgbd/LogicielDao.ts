@@ -44,11 +44,16 @@ class LogicielDAO
             logiciel.obsolete = obj.obsolete == 1;
             logiciel.date_ajout = new Date(obj.date_ajout);
             logiciel.numero_serie = obj.numero_serie;
-            let user = await this.userDao.LireUtilisateur(obj.utilisateur);
+
+            let user = new Utilisateur();
+            user.login = obj.utilisateur;
+            user.nom = obj.utilisateurNom;
+            user.statut = obj.utilisateurStatut;
+            user.departement = obj.utilisateurDepartement;
             logiciel.utilisateur = user;
+
             list.push(logiciel);
         }
-
         return list;
     }
     /**
