@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 require_once("logiciels.dao.php");
 $bdd = new Database();
@@ -19,6 +20,11 @@ if(isset($_GET["action"]))
 {
     if($_GET["action"]=="update")
     {
+        http_response_code(401);
+        echo json_encode(["error" => "Non authentifié"]);
+        exit;
+    }
+    if ($_GET["action"] == "update") {
         $dao->majLogiciel($_GET);
     }
     else if($_GET["action"]=="insert")
