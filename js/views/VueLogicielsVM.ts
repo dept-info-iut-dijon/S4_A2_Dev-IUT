@@ -85,6 +85,21 @@ class VueLogicielsVM
         return await this.ldao.listNom(name, portable, cacherObsolete);
     }
 
+    async listeLogicielsFilierePagine(idfiliere: number, portable: boolean, obsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        return await this.ldao.listFilierePagine(idfiliere, portable, obsolete, page, limite);
+    }
+
+    async listeLogicielsMatierePagine(idmatiere: number, portable: boolean, cacherObsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        return await this.ldao.listMatierePagine(idmatiere, portable, cacherObsolete, page, limite);
+    }
+
+    async listeLogicielsNomPagine(name: string, portable: boolean, cacherObsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        return await this.ldao.listNomPagine(name, portable, cacherObsolete, page, limite);
+    }
+
     /**
      * Liste tous les logiciels avec pagination
      * @param portableOnly pour indiquer si on ne conserve que les portables

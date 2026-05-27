@@ -342,23 +342,25 @@ class VueLogiciels
             await this.listerTousLogiciels(this.portOnly.checked, this.cacherObsolete.checked);
         }
         else if ($("#year").prop("checked"))
-        { 
+        {
             let id = $("#years option:selected").val();
-            let logs = await this.vueModele.listeLogicielsFiliere(id, this.portOnly.checked, this.cacherObsolete.checked);
-            this.listerLogiciels(logs); 
+            let result = await this.vueModele.listeLogicielsFilierePagine(id, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
+            this.listerLogiciels(result.logiciels);
+            this.afficherPagination(result.total, result.page, result.limite);
         }
         else if ($("#course").prop("checked"))
         {
             let id = $("#courses option:selected").val();
-            let logs = await this.vueModele.listeLogicielsMatiere(id, this.portOnly.checked, this.cacherObsolete.checked);
-            this.listerLogiciels(logs);
-
+            let result = await this.vueModele.listeLogicielsMatierePagine(id, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
+            this.listerLogiciels(result.logiciels);
+            this.afficherPagination(result.total, result.page, result.limite);
         }
         else if ($("#name").prop("checked"))
         {
             let name = $("#filtrer").val();
-            let logs = await this.vueModele.listeLogicielsNom(name, this.portOnly.checked, this.cacherObsolete.checked);
-            this.listerLogiciels(logs);
+            let result = await this.vueModele.listeLogicielsNomPagine(name, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
+            this.listerLogiciels(result.logiciels);
+            this.afficherPagination(result.total, result.page, result.limite);
         }
     }
 }

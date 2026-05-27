@@ -301,18 +301,21 @@ class VueLogiciels {
             }
             else if ($("#year").prop("checked")) {
                 let id = $("#years option:selected").val();
-                let logs = yield this.vueModele.listeLogicielsFiliere(id, this.portOnly.checked, this.cacherObsolete.checked);
-                this.listerLogiciels(logs);
+                let result = yield this.vueModele.listeLogicielsFilierePagine(id, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
+                this.listerLogiciels(result.logiciels);
+                this.afficherPagination(result.total, result.page, result.limite);
             }
             else if ($("#course").prop("checked")) {
                 let id = $("#courses option:selected").val();
-                let logs = yield this.vueModele.listeLogicielsMatiere(id, this.portOnly.checked, this.cacherObsolete.checked);
-                this.listerLogiciels(logs);
+                let result = yield this.vueModele.listeLogicielsMatierePagine(id, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
+                this.listerLogiciels(result.logiciels);
+                this.afficherPagination(result.total, result.page, result.limite);
             }
             else if ($("#name").prop("checked")) {
                 let name = $("#filtrer").val();
-                let logs = yield this.vueModele.listeLogicielsNom(name, this.portOnly.checked, this.cacherObsolete.checked);
-                this.listerLogiciels(logs);
+                let result = yield this.vueModele.listeLogicielsNomPagine(name, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
+                this.listerLogiciels(result.logiciels);
+                this.afficherPagination(result.total, result.page, result.limite);
             }
         });
     }

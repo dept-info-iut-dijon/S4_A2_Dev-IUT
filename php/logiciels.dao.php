@@ -165,31 +165,48 @@ class LogicielsDao
         return $val;
     }
 
-    /**
-     * Liste les logiciels avec pagination
-     * @param boolean $portable indique si l'on ne souhaite que les portables
-     * @param boolean $cacherObs pour indiquer si on cache les logiciels obsolètes ou non
-     * @param int $page numéro de page (commence à 1)
-     * @param int $limite nombre de résultats par page
-     * @return array tableau avec clés logiciels, total, page, limite
-     */
+    private function pagineResult(string $countReq, array $countParams, string $dataReq, array $dataParams, int $page, int $limite): array
+    {
+        $total = intval($this->bdd->queryOne($countReq, $countParams)["total"]);
+        $offset = ($page - 1) * $limite;
+        $logiciels = $this->bdd->queryAll($dataReq . " ORDER BY Logiciel.nom LIMIT " . intval($limite) . " OFFSET " . intval($offset) . ";", $dataParams);
+        return array("logiciels" => $logiciels, "total" => $total, "page" => $page, "limite" => $limite);
+    }
+
     public function listAllPagine($portable, $cacherObs, $page, $limite)
     {
         $where = "WHERE 1=1 ";
-        if ($portable)
-            $where .= "AND " . $this->FiltrePortable() . " ";
-        if ($cacherObs)
-            $where .= "AND " . $this->FiltreObsolete() . " ";
+        if ($portable) $where .= "AND " . $this->FiltrePortable() . " ";
+        if ($cacherObs) $where .= "AND " . $this->FiltreObsolete() . " ";
+        $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $where;
+        return $this->pagineResult($countReq, array(), $this->selectBase() . $where, array(), $page, $limite);
+    }
 
-        $countReq = "SELECT COUNT(*) as total FROM Logiciel LEFT JOIN Utilisateur ON Utilisateur.login = Logiciel.Utilisateurlogin " . $where;
-        $countData = $this->bdd->queryOne($countReq, array());
-        $total = intval($countData["total"]);
+    public function listByFilierePagine($id, $portable, $cacherObs, $page, $limite)
+    {
+        $join = "JOIN Logiciel_Filiere ON Logiciel_Filiere.LogicielID=Logiciel.ID WHERE Logiciel_Filiere.FiliereID=? ";
+        if ($portable) $join .= "AND " . $this->FiltrePortable() . " ";
+        if ($cacherObs) $join .= "AND " . $this->FiltreObsolete() . " ";
+        $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $join;
+        return $this->pagineResult($countReq, array($id), $this->selectBase() . $join, array($id), $page, $limite);
+    }
 
-        $offset = ($page - 1) * $limite;
-        $req = $this->selectBase() . $where . "ORDER BY Logiciel.nom LIMIT " . intval($limite) . " OFFSET " . intval($offset) . ";";
-        $logiciels = $this->bdd->queryAll($req, array());
+    public function listByMatierePagine($id, $portable, $cacherObs, $page, $limite)
+    {
+        $join = "JOIN Logiciel_Matiere ON Logiciel_Matiere.LogicielID=Logiciel.ID WHERE Logiciel_Matiere.MatiereID=? ";
+        if ($portable) $join .= "AND " . $this->FiltrePortable() . " ";
+        if ($cacherObs) $join .= "AND " . $this->FiltreObsolete() . " ";
+        $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $join;
+        return $this->pagineResult($countReq, array($id), $this->selectBase() . $join, array($id), $page, $limite);
+    }
 
-        return array("logiciels" => $logiciels, "total" => $total, "page" => $page, "limite" => $limite);
+    public function listByNamePagine($nom, $portable, $cacherObs, $page, $limite)
+    {
+        $where = "WHERE Logiciel.nom LIKE ? ";
+        if ($portable) $where .= "AND " . $this->FiltrePortable() . " ";
+        if ($cacherObs) $where .= "AND " . $this->FiltreObsolete() . " ";
+        $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $where;
+        return $this->pagineResult($countReq, array("%$nom%"), $this->selectBase() . $where, array("%$nom%"), $page, $limite);
     }
 
     /**

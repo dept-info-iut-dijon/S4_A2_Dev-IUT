@@ -171,6 +171,45 @@ class LogicielDAO
         return list;
     }
 
+    public async listFilierePagine(idfiliere: number, portable: boolean, obsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        let data = await $.ajax({
+            method: "get",
+            dataType: "json",
+            data: { "idfil": idfiliere, "portable": portable, "obsolete": obsolete, "page": page, "limite": limite },
+            url: "php/logiciels.php",
+            error: (obj, status, error) => { console.log(error); }
+        });
+        let logiciels = await this.getData(data.logiciels);
+        return { logiciels, total: data.total, page: data.page, limite: data.limite };
+    }
+
+    public async listMatierePagine(idmatiere: number, portable: boolean, cacherObsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        let data = await $.ajax({
+            method: "get",
+            dataType: "json",
+            data: { "idmat": idmatiere, "portable": portable, "obsolete": cacherObsolete, "page": page, "limite": limite },
+            url: "php/logiciels.php",
+            error: (obj, status, error) => { console.log(error); }
+        });
+        let logiciels = await this.getData(data.logiciels);
+        return { logiciels, total: data.total, page: data.page, limite: data.limite };
+    }
+
+    public async listNomPagine(name: string, portable: boolean, cacherObsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        let data = await $.ajax({
+            method: "get",
+            dataType: "json",
+            data: { "nom": name, "portable": portable, "obsolete": cacherObsolete, "page": page, "limite": limite },
+            url: "php/logiciels.php",
+            error: (obj, status, error) => { console.log(error); }
+        });
+        let logiciels = await this.getData(data.logiciels);
+        return { logiciels, total: data.total, page: data.page, limite: data.limite };
+    }
+
     /**
      * Met à jour le logiciel depuis le SGBD
      * @param log le logiciel à mettre à jour

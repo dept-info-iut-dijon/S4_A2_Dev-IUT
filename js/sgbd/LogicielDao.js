@@ -171,6 +171,45 @@ class LogicielDAO {
             return list;
         });
     }
+    listFilierePagine(idfiliere, portable, obsolete, page, limite) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data = yield $.ajax({
+                method: "get",
+                dataType: "json",
+                data: { "idfil": idfiliere, "portable": portable, "obsolete": obsolete, "page": page, "limite": limite },
+                url: "php/logiciels.php",
+                error: (obj, status, error) => { console.log(error); }
+            });
+            let logiciels = yield this.getData(data.logiciels);
+            return { logiciels, total: data.total, page: data.page, limite: data.limite };
+        });
+    }
+    listMatierePagine(idmatiere, portable, cacherObsolete, page, limite) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data = yield $.ajax({
+                method: "get",
+                dataType: "json",
+                data: { "idmat": idmatiere, "portable": portable, "obsolete": cacherObsolete, "page": page, "limite": limite },
+                url: "php/logiciels.php",
+                error: (obj, status, error) => { console.log(error); }
+            });
+            let logiciels = yield this.getData(data.logiciels);
+            return { logiciels, total: data.total, page: data.page, limite: data.limite };
+        });
+    }
+    listNomPagine(name, portable, cacherObsolete, page, limite) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data = yield $.ajax({
+                method: "get",
+                dataType: "json",
+                data: { "nom": name, "portable": portable, "obsolete": cacherObsolete, "page": page, "limite": limite },
+                url: "php/logiciels.php",
+                error: (obj, status, error) => { console.log(error); }
+            });
+            let logiciels = yield this.getData(data.logiciels);
+            return { logiciels, total: data.total, page: data.page, limite: data.limite };
+        });
+    }
     /**
      * Met à jour le logiciel depuis le SGBD
      * @param log le logiciel à mettre à jour
