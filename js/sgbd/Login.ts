@@ -8,7 +8,7 @@ class Login{
      * @param {string} text to hash
      * @returns hash value
      */
-    private async hash(text): Promise<string>{
+    public async hash(text): Promise<string>{
         const encoder = new TextEncoder();
         const data = encoder.encode(text);
 

@@ -75,10 +75,33 @@ class UtilisateurDao {
                 "login": currentUser.login,
                 "nom": currentUser.nom,
                 "departement": currentUser.departement,
-                "statut": currentUser.statut                
+                "statut": currentUser.statut
             },
             error: (xhr, ajaxOptions, thrownError) => { console.log(thrownError); }
         });
         console.log(ret); // bpf
+    }
+
+    /**
+     * Supprime le compte de l'utilisateur (RGPD).
+     * @param login le login de l'utilisateur
+     * @param password le mot de passe en clair (sera hashé avant envoi)
+     * @returns true si supprimé, false si mot de passe incorrect
+     */
+    public async supprimerCompte(login: string, password: string): Promise<boolean> {
+        let log = new Login();
+        let hashPass = await log.hash(password);
+        let ret = await $.ajax({
+            url: "php/user.dao.php",
+            method: "post",
+            dataType: "json",
+            data: {
+                "action": "delete",
+                "login": login,
+                "password": hashPass
+            },
+            error: (xhr) => { console.log(xhr); }
+        });
+        return ret.response === "ok";
     }
 } 

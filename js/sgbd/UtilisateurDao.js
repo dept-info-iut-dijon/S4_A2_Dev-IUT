@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -86,6 +87,30 @@ class UtilisateurDao {
                 error: (xhr, ajaxOptions, thrownError) => { console.log(thrownError); }
             });
             console.log(ret); // bpf
+        });
+    }
+    /**
+     * Supprime le compte de l'utilisateur (RGPD).
+     * @param login le login de l'utilisateur
+     * @param password le mot de passe en clair (sera hashé avant envoi)
+     * @returns true si supprimé, false si mot de passe incorrect
+     */
+    supprimerCompte(login, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let log = new Login();
+            let hashPass = yield log.hash(password);
+            let ret = yield $.ajax({
+                url: "php/user.dao.php",
+                method: "post",
+                dataType: "json",
+                data: {
+                    "action": "delete",
+                    "login": login,
+                    "password": hashPass
+                },
+                error: (xhr) => { console.log(xhr); }
+            });
+            return ret.response === "ok";
         });
     }
 }
