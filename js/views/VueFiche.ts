@@ -32,7 +32,12 @@ class VueFiche
         // liaison des events
         $("#add").on("click", () => { this.ajouterLog(); });
         $("#remove").on("click", () => { this.retirerLog(); });
-        $("#cancel").on("click", () => { window.history.back(); });
+        // erg 22   
+        $("#cancel").on("click", () => {
+            if (window.confirm("Les modifications non enregistrées seront perdues. Continuer ?")) {
+                window.history.back();
+            }
+        });
         $("#ok").on("click", () => { this.valider(); });
         $("#urlImage").on("input", () => { this.changeThumb(); });
 
@@ -166,10 +171,17 @@ class VueFiche
     }
     private async valider()
     {
-        // valide les modifications et ferme la fenêtre
+        // ERG-20 : validation avant envoi — nom et type obligatoires
+        let nom = ($("#name").val() as string).trim();
+        let type = ($("#type").val() as string).trim();
+        if (nom === "" || type === "") {
+            alert("Le nom et le type du logiciel sont obligatoires.");
+            return;
+        }
+
         let nouveau = false;
         try {
-            if (this.currentLog == null) // création, pas modification
+            if (this.currentLog == null)
             {
                 this.currentLog = new Logiciel();
                 nouveau = true;
