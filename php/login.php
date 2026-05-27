@@ -2,22 +2,20 @@
 require_once("database.php");
 require_once("user.dao.php");
 
-    //if(isset($_POST["login"]))
-    {
-        $bdd = new Database();
-        $dao = new UserDao($bdd);
-        $userArray = $dao->readUser($_POST["login"]);
-        $connected = "error";
-        if(isset($userArray["hashpass"]) && $userArray["hashpass"] == $_POST["password"])
-            {
-                session_start();
-                $_SESSION["login"]=$_POST["login"];
-                $_SESSION["name"] = $userArray["nom"] ;
-                $_SESSION["statut"] = $userArray["statut"];
-                $_SESSION["departement"]=$userArray["departement"];
-                $connected="ok";
-            }
-        echo json_encode(["result"=>$connected]);
-    }
-    
-?>
+session_start();
+
+$bdd = new Database();
+$dao = new UserDao($bdd);
+
+$utilisateur = $dao->readUser($_POST["login"]);
+$resultat = "error";
+
+if (isset($utilisateur["hashpass"]) && password_verify($_POST["password"], $utilisateur["hashpass"])) {
+    $_SESSION["login"]       = $_POST["login"];
+    $_SESSION["name"]        = $utilisateur["nom"];
+    $_SESSION["statut"]      = $utilisateur["statut"];
+    $_SESSION["departement"] = $utilisateur["departement"];
+    $resultat = "ok";
+}
+
+echo json_encode(["result" => $resultat]);
