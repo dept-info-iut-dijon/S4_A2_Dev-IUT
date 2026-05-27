@@ -166,6 +166,33 @@ class LogicielsDao
     }
 
     /**
+     * Liste les logiciels avec pagination
+     * @param boolean $portable indique si l'on ne souhaite que les portables
+     * @param boolean $cacherObs pour indiquer si on cache les logiciels obsolètes ou non
+     * @param int $page numéro de page (commence à 1)
+     * @param int $limite nombre de résultats par page
+     * @return array tableau avec clés logiciels, total, page, limite
+     */
+    public function listAllPagine($portable, $cacherObs, $page, $limite)
+    {
+        $where = "WHERE 1=1 ";
+        if ($portable)
+            $where .= "AND " . $this->FiltrePortable() . " ";
+        if ($cacherObs)
+            $where .= "AND " . $this->FiltreObsolete() . " ";
+
+        $countReq = "SELECT COUNT(*) as total FROM Logiciel LEFT JOIN Utilisateur ON Utilisateur.login = Logiciel.Utilisateurlogin " . $where;
+        $countData = $this->bdd->queryOne($countReq, array());
+        $total = intval($countData["total"]);
+
+        $offset = ($page - 1) * $limite;
+        $req = $this->selectBase() . $where . "ORDER BY Logiciel.nom LIMIT " . intval($limite) . " OFFSET " . intval($offset) . ";";
+        $logiciels = $this->bdd->queryAll($req, array());
+
+        return array("logiciels" => $logiciels, "total" => $total, "page" => $page, "limite" => $limite);
+    }
+
+    /**
      * Supprime le logiciel de la BDD
      * @param mixed $log le logiciel à supprimer, sous forme d'un [] associatif
      */

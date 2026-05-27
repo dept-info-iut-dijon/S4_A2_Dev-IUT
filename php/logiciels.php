@@ -54,7 +54,16 @@ else if(isset($_GET["id"]))
 
 else
 {
-    $list = $dao->listAll($portable, $cacherObs);
+    if(isset($_GET["page"]))
+    {
+        $page = intval($_GET["page"]);
+        $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+        $list = $dao->listAllPagine($portable, $cacherObs, $page, $limite);
+    }
+    else
+    {
+        $list = $dao->listAll($portable, $cacherObs);
+    }
 }
 echo json_encode($list);
 ?>

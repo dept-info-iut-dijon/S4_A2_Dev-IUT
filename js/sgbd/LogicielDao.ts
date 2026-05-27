@@ -205,4 +205,30 @@ class LogicielDAO
             log.id = parseInt(retour["id"].AUTO_INCREMENT, 10);            
         }
     }
+
+    /**
+     * Liste les logiciels avec pagination
+     * @param portableOnly indique si l'on ne souhaite que les portables
+     * @param cacherObsolete pour indiquer si on cache les logiciels obsolètes ou non
+     * @param page numéro de page (commence à 1)
+     * @param limite nombre de résultats par page
+     * @returns les logiciels de la page + le total
+     */
+    public async listAllPagine(portableOnly: boolean, cacherObsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        let data = await $.ajax({
+            method: "get",
+            data: {
+                "portable": portableOnly,
+                "obsolete": cacherObsolete,
+                "page": page,
+                "limite": limite
+            },
+            dataType: "json",
+            url: "php/logiciels.php",
+            error: (obj, status, error) => { console.log(error); }
+        });
+        let logiciels = await this.getData(data.logiciels);
+        return { logiciels, total: data.total, page: data.page, limite: data.limite };
+    }
 }

@@ -18,6 +18,8 @@ class VueLogiciels
     private listeFilieres: HTMLSelectElement;
     private listeMatieres: HTMLSelectElement;
     private cbRecent: HTMLInputElement;
+    private currentPage: number = 1;
+    private readonly LIMITE: number = 20;
     constructor()
     {
         this.portOnly = document.getElementById("fport") as HTMLInputElement;
@@ -74,21 +76,29 @@ class VueLogiciels
         this.listeMatieres.disabled = true;
         this.filtreTexteNom.disabled = true;
     }
+
     private async choisirTout() {
-        this.griseTout();
-        await this.filtrer();
+    this.currentPage = 1;
+    this.griseTout();
+    await this.filtrer();
     }
+
     private async choisirFilieres() {
+        this.currentPage = 1;
         this.griseTout();
         this.listeFilieres.disabled = false;
         await this.filtrer();
     }
+
     private async choisirMatieres() {
+        this.currentPage = 1;
         this.griseTout();
         this.listeMatieres.disabled = false;
         await this.filtrer();
     }
+    
     private async choisirNom() {
+        this.currentPage = 1;
         this.griseTout();
         this.filtreTexteNom.disabled = false;
         await this.filtrer();
@@ -173,10 +183,53 @@ class VueLogiciels
         }); 
     }
 
-    private async listerTousLogiciels(portableOnly: boolean = false, cacherObsolete:boolean=false)
+    private async listerTousLogiciels(portableOnly: boolean = false, cacherObsolete: boolean = false)
     {
-        let logs = await this.vueModele.listeTousLogiciels(portableOnly, cacherObsolete);
-        this.listerLogiciels(logs);        
+        let result = await this.vueModele.listeTousLogicielsPagine(portableOnly, cacherObsolete, this.currentPage, this.LIMITE);
+        this.listerLogiciels(result.logiciels);
+        this.afficherPagination(result.total, result.page, result.limite);
+    }
+
+    private afficherPagination(total: number, page: number, limite: number)
+    {
+        let nbPages = Math.ceil(total / limite);
+        let nav = document.getElementById("pagination");
+        if (!nav) {
+            nav = document.createElement("div");
+            nav.id = "pagination";
+            nav.style.textAlign = "center";
+            nav.style.marginTop = "10px";
+            $("main .list").after(nav);
+        }
+        nav.innerHTML = "";
+
+        // Bouton Précédent
+        if (page > 1) {
+            let btnPrev = document.createElement("button");
+            btnPrev.innerHTML = "◀";
+            btnPrev.onclick = () => {
+                this.currentPage--;
+                this.filtrer();
+            };
+            nav.appendChild(btnPrev);
+        }
+
+        // Info page
+        let info = document.createElement("span");
+        info.innerHTML = ` Page ${page} / ${nbPages} (${total} logiciels) `;
+        info.style.margin = "0 8px";
+        nav.appendChild(info);
+
+        // Bouton Suivant
+        if (page < nbPages) {
+            let btnNext = document.createElement("button");
+            btnNext.innerHTML = "▶";
+            btnNext.onclick = () => {
+                this.currentPage++;
+                this.filtrer();
+            };
+            nav.appendChild(btnNext);
+        }
     }
 
     private effaceLogiciel()
