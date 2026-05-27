@@ -53,29 +53,36 @@ class VueFiche {
             $("#obsolete").prop("checked", this.currentLog.obsolete);
             $("#years .year").prop("checked", false);
             let filieres = yield this.filieresDAO.listeLog(this.currentLog);
-            $("#years .year label").each((index, element) => {
-                if (filieres.find((val) => { return val.nom == element.innerText; }) != undefined) {
-                    let cb = element.children.item(0);
-                    cb.checked = true;
-                }
-            });
+            $("#years .year").each((index, element) => {
+            let label = element.querySelector("label");
+            let cb = element.querySelector("input[type='checkbox']");
+            if (label && cb && filieres.find((val) => val.nom == label.innerText) != undefined) {
+                cb.checked = true;
+            }
+        });
             let matused = yield this.matieresDAO.listLog(this.currentLog);
             this.putMatieres(matused, "#uses");
             this.input_serie.value = this.currentLog.numero_serie;
         });
     }
-    putFilieres(filieres, selector) {
+        putFilieres(filieres, selector) {
         $(selector).html("");
         filieres.forEach((filiere) => {
             let div = document.createElement("div");
             div.classList.add("year");
-            let label = document.createElement("label");
-            label.innerHTML = filiere.nom;
+
+            // E4 : input avant le label, texte à droite de la case
             let cb = document.createElement("input");
             cb.type = "checkbox";
             cb.value = filiere.id.toString();
-            label.appendChild(cb);
-            div.appendChild(label);
+            cb.id = "filiere_" + filiere.id;
+
+            let label = document.createElement("label");
+            label.htmlFor = cb.id;      // lié par for/id
+            label.innerHTML = filiere.nom;
+
+            div.appendChild(cb);        // case en premier
+            div.appendChild(label);     // texte après
             $(selector).append(div);
         });
     }
