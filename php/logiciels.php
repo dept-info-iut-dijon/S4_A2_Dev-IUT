@@ -1,4 +1,7 @@
 <?php
+
+require_once("auth.php");
+
 session_start();
 
 require_once("logiciels.dao.php");
@@ -18,12 +21,7 @@ else
 
 if(isset($_GET["action"]))
 {
-    if($_GET["action"]=="update")
-    {
-        http_response_code(401);
-        echo json_encode(["error" => "Non authentifié"]);
-        exit;
-    }
+    require_admin();
     if ($_GET["action"] == "update") {
         $dao->majLogiciel($_GET);
     }

@@ -15,6 +15,7 @@ require_once("user.dao.php");
                 $_SESSION["name"] = $userArray["nom"] ;
                 $_SESSION["statut"] = $userArray["statut"];
                 $_SESSION["departement"]=$userArray["departement"];
+                $_SESSION["role"] = $userArray["role"];
                 $connected="ok";
             }
         echo json_encode(["result"=>$connected]);
