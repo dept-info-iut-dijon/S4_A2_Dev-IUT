@@ -1,5 +1,18 @@
 <?php
+/**
+ * Point d'entrée API pour la gestion des matières.
+ * Gère les opérations de lecture, insertion et suppression
+ * des associations entre logiciels et matières.
+ * Nécessite une session active (utilisateur connecté).
+ *
+ * Paramètres GET acceptés :
+ * - action=delete & idlog : supprime toutes les matières liées à un logiciel
+ * - action=insert & idlog & idm : associe une matière à un logiciel
+ * - idlog : retourne les matières associées à un logiciel donné
+ * - (aucun) : retourne la liste complète des matières
+ */
 
+// Vérification que l'utilisateur est connecté
 session_start();
 if (!isset($_SESSION["login"])) {
     http_response_code(401);
@@ -13,11 +26,13 @@ $list = array();
 
 if (isset($_GET["action"])) {
     if ($_GET["action"] === "delete") {
+        // Suppression de toutes les matières associées à un logiciel
         $id  = $_GET["idlog"];
         $req = "DELETE FROM Logiciel_Matiere WHERE LogicielID=?";
         $bdd->execute($req, array($id));
     }
     else if ($_GET["action"] === "insert") {
+        // Association d'une matière à un logiciel
         $idlog = $_GET["idlog"];
         $idm   = $_GET["idm"];
         $req   = "INSERT INTO Logiciel_Matiere(MatiereID, LogicielID) VALUES(?,?);";
@@ -25,6 +40,7 @@ if (isset($_GET["action"])) {
     }
 }
 else if (isset($_GET["idlog"])) {
+    // Retourne les matières associées à un logiciel donné
     $id   = $_GET["idlog"];
     $list = $bdd->queryAll(
         "SELECT id, code, nom FROM Matiere
@@ -34,7 +50,9 @@ else if (isset($_GET["idlog"])) {
     );
 }
 else {
+    // Retourne la liste complète des matières
     $list = $bdd->queryAll("SELECT id, code, nom FROM Matiere;", array());
 }
 
 echo json_encode($list);
+?>

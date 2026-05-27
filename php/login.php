@@ -1,4 +1,15 @@
 <?php
+/**
+ * Point d'entrée pour l'authentification des utilisateurs.
+ * Vérifie les identifiants transmis via POST et ouvre une session
+ * si l'authentification réussit.
+ *
+ * Paramètres POST acceptés :
+ * - login : identifiant de l'utilisateur
+ * - password : mot de passe hashé en SHA-256 côté client
+ *
+ * Retourne un JSON : {"result":"ok"} ou {"result":"error"}
+ */
 require_once("database.php");
 require_once("user.dao.php");
 
@@ -7,10 +18,12 @@ session_start();
 $bdd = new Database();
 $dao = new UserDao($bdd);
 
+// Récupération de l'utilisateur depuis la base
 $utilisateur = $dao->readUser($_POST["login"]);
 $resultat = "error";
 
 if (isset($utilisateur["hashpass"]) && password_verify($_POST["password"], $utilisateur["hashpass"])) {
+    // Identifiants valides : ouverture de session
     $_SESSION["login"]       = $_POST["login"];
     $_SESSION["name"]        = $utilisateur["nom"];
     $_SESSION["statut"]      = $utilisateur["statut"];
@@ -19,3 +32,4 @@ if (isset($utilisateur["hashpass"]) && password_verify($_POST["password"], $util
 }
 
 echo json_encode(["result" => $resultat]);
+?>
