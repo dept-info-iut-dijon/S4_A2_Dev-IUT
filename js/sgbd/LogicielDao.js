@@ -11,9 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 /**
  * Lien avec le code serveur pour les logiciels
  * */
+// DIP : UtilisateurDao est injecté, pas créé ici
 class LogicielDAO {
-    constructor() {
-        this.userDao = new UtilisateurDao();
+    constructor(userDao = new UtilisateurDao()) {
+        this.userDao = userDao;
     }
     /**
      * Supprime de la base le logiciel donné
@@ -36,6 +37,7 @@ class LogicielDAO {
     }
     getData(data) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             let list = new Array();
             for (let obj of data) {
                 let logiciel = new Logiciel();
@@ -57,6 +59,7 @@ class LogicielDAO {
                 user.nom = obj.utilisateurNom;
                 user.statut = obj.utilisateurStatut;
                 user.departement = obj.utilisateurDepartement;
+                user.role = (_a = obj.utilisateurRole) !== null && _a !== void 0 ? _a : 2;
                 logiciel.utilisateur = user;
                 list.push(logiciel);
             }

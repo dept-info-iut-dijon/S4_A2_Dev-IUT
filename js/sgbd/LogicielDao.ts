@@ -1,12 +1,13 @@
 ﻿/**
  * Lien avec le code serveur pour les logiciels
  * */
+// DIP : UtilisateurDao est injecté, pas créé ici
 class LogicielDAO
 {
     private userDao: UtilisateurDao;
 
-    public constructor() {
-        this.userDao = new UtilisateurDao();
+    public constructor(userDao: UtilisateurDao = new UtilisateurDao()) {
+        this.userDao = userDao;
     }
     /**
      * Supprime de la base le logiciel donné
@@ -26,7 +27,7 @@ class LogicielDAO
         console.log(retour);
     }
 
-    private async getData(data): Promise<Logiciel[]>
+    private async getData(data: any[]): Promise<Logiciel[]>
     {
         let list = new Array<Logiciel>();
         for (let obj of data) {
@@ -50,6 +51,7 @@ class LogicielDAO
             user.nom = obj.utilisateurNom;
             user.statut = obj.utilisateurStatut;
             user.departement = obj.utilisateurDepartement;
+            user.role = obj.utilisateurRole ?? 2;
             logiciel.utilisateur = user;
 
             list.push(logiciel);
@@ -63,7 +65,7 @@ class LogicielDAO
      * @param cacherObsolete pour indiquer si on cache les logiciels obsolètes ou non
      * @returns les logiciels
      */
-    public async listNom(name: string, portable:boolean, cacherObsolete): Promise<Logiciel[]>
+    public async listNom(name: string, portable: boolean, cacherObsolete: boolean): Promise<Logiciel[]>
     {        
          let data = await $.ajax({
             method: "get",

@@ -9,55 +9,55 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 /**
- * Vue sur les logiciels
- * */
+ * Vue sur les logiciels.
+ * SRP : cette classe gère uniquement l'affichage et les interactions utilisateur.
+ * La pagination est déléguée à VuePagination.
+ * La logique de filtre est déléguée à FiltreLogiciels.
+ */
 class VueLogiciels {
     constructor() {
         this.currentPage = 1;
         this.LIMITE = 20;
         this.portOnly = document.getElementById("fport");
-        this.portOnly.oninput = this.filtrer.bind(this);
         this.cacherObsolete = document.getElementById("fobsolete");
-        this.cacherObsolete.oninput = this.filtrer.bind(this);
-        this.filtreRien = document.getElementById("all");
-        this.filtreRien.oninput = this.choisirTout.bind(this);
-        this.filtreFiliere = document.getElementById("year");
-        this.filtreFiliere.oninput = this.choisirFilieres.bind(this);
-        this.filtreMatiere = document.getElementById("course");
-        this.filtreMatiere.onclick = this.choisirMatieres.bind(this);
-        this.filtreNom = document.getElementById("name");
-        this.filtreNom.onchange = this.choisirNom.bind(this);
         this.filtreTexteNom = document.getElementById("filtrer");
-        this.filtreTexteNom.oninput = this.filtrer.bind(this);
         this.listeFilieres = document.getElementById("years");
-        this.listeFilieres.oninput = this.filtrer.bind(this);
         this.listeMatieres = document.getElementById("courses");
-        this.listeMatieres.oninput = this.filtrer.bind(this);
         this.cbRecent = document.getElementById("cb_recent");
-        this.cbRecent.oninput = this.filtrer.bind(this);
         this.filieresDAO = new FiliereDAO();
         this.matieresDAO = new MatiereDAO();
         this.logicielsDAO = new LogicielDAO();
         this.vueModele = new VueLogicielsVM(this.filieresDAO, this.matieresDAO, this.logicielsDAO);
-        this.listerFilieres();
-        this.listerMatieres();
-        document.getElementById("modify").addEventListener("click", () => { this.modifieLogiciel(); });
-        document.getElementById("add").addEventListener("click", () => { this.ajouteLogiciel(); });
-        document.getElementById("delete").addEventListener("click", () => { this.supprimeLogiciel(); });
+        this.pagination = new VuePagination((page) => { this.currentPage = page; this.filtrer(); });
+        this.filtre = new FiltreLogiciels(this.vueModele);
+        this.brancherEvenements();
+        this.chargerFilieres();
+        this.chargerMatieres();
         this.currentLog = null;
     }
-    /**
-     * exécuté quand la vue s'affiche, sur un retour, par exemple
-     */
+    brancherEvenements() {
+        this.portOnly.oninput = this.filtrer.bind(this);
+        this.cacherObsolete.oninput = this.filtrer.bind(this);
+        this.filtreTexteNom.oninput = this.filtrer.bind(this);
+        this.listeFilieres.oninput = this.filtrer.bind(this);
+        this.listeMatieres.oninput = this.filtrer.bind(this);
+        this.cbRecent.oninput = this.filtrer.bind(this);
+        document.getElementById("all").oninput = () => { this.currentPage = 1; this.griseTout(); this.filtrer(); };
+        document.getElementById("year").oninput = () => { this.currentPage = 1; this.griseTout(); this.listeFilieres.disabled = false; this.filtrer(); };
+        document.getElementById("course").onclick = () => { this.currentPage = 1; this.griseTout(); this.listeMatieres.disabled = false; this.filtrer(); };
+        document.getElementById("name").onchange = () => { this.currentPage = 1; this.griseTout(); this.filtreTexteNom.disabled = false; this.filtrer(); };
+        document.getElementById("modify").addEventListener("click", () => this.modifieLogiciel());
+        document.getElementById("add").addEventListener("click", () => this.ajouteLogiciel());
+        document.getElementById("delete").addEventListener("click", () => this.supprimeLogiciel());
+    }
     affiche() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.currentLog != null) {
-                // c'est un retour... il faut recharger le logiciel et l'affiche de nouveau
                 this.currentLog = yield this.logicielsDAO.getLogiciel(this.currentLog.id);
                 this.afficheLogiciel(this.currentLog);
-                // il faudrait modifier la liste aussi...
                 let item = document.querySelector(".listitem.selected");
-                item.innerHTML = this.currentLog.nomVersion;
+                if (item)
+                    item.innerHTML = this.currentLog.nomVersion;
             }
         });
     }
@@ -66,41 +66,10 @@ class VueLogiciels {
         this.listeMatieres.disabled = true;
         this.filtreTexteNom.disabled = true;
     }
-    choisirTout() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.currentPage = 1;
-            this.griseTout();
-            yield this.filtrer();
-        });
-    }
-    choisirFilieres() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.currentPage = 1;
-            this.griseTout();
-            this.listeFilieres.disabled = false;
-            yield this.filtrer();
-        });
-    }
-    choisirMatieres() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.currentPage = 1;
-            this.griseTout();
-            this.listeMatieres.disabled = false;
-            yield this.filtrer();
-        });
-    }
-    choisirNom() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.currentPage = 1;
-            this.griseTout();
-            this.filtreTexteNom.disabled = false;
-            yield this.filtrer();
-        });
-    }
     supprimeLogiciel() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.currentLog != null) {
-                let ok = confirm("Supprimer le logiciel " + this.currentLog.nomVersion + " ? ");
+                let ok = confirm("Supprimer le logiciel " + this.currentLog.nomVersion + " ?");
                 if (ok) {
                     yield this.logicielsDAO.delLogiciel(this.currentLog);
                     this.effaceLogiciel();
@@ -114,11 +83,10 @@ class VueLogiciels {
     }
     modifieLogiciel() {
         if (this.currentLog != null) {
-            // aller vers editor.html en lui transmettant currentLog
             window.location.href = "editor.html?id=" + this.currentLog.id.toString();
         }
     }
-    listerFilieres() {
+    chargerFilieres() {
         return __awaiter(this, void 0, void 0, function* () {
             let filieres = yield this.vueModele.listeFilieres();
             filieres.forEach((filiere) => {
@@ -129,7 +97,7 @@ class VueLogiciels {
             });
         });
     }
-    listerMatieres() {
+    chargerMatieres() {
         return __awaiter(this, void 0, void 0, function* () {
             let matieres = yield this.vueModele.listeMatieres();
             matieres.forEach((matiere) => {
@@ -140,19 +108,16 @@ class VueLogiciels {
             });
         });
     }
-    videLogiciels() {
+    viderListe() {
         this.effaceLogiciel();
         $("main .list").html("");
     }
-    listerLogiciels(logs) {
-        this.videLogiciels(); // vide la liste avant
+    afficherListe(logs) {
+        this.viderListe();
         logs.forEach((log) => {
             if (!this.cbRecent.checked || log.estRecent) {
                 let div = document.createElement("div");
-                $("main .list").append(div);
                 div.classList.add("listitem");
-                /*if (log.estRecent)
-                    div.classList.add("emphase"); */
                 let p = document.createElement("p");
                 p.innerHTML = log.nomVersion;
                 div.appendChild(p);
@@ -161,170 +126,112 @@ class VueLogiciels {
                     div.classList.add("selected");
                     this.afficheLogiciel(log);
                 });
+                $("main .list").append(div);
             }
         });
     }
-    listerTousLogiciels() {
-        return __awaiter(this, arguments, void 0, function* (portableOnly = false, cacherObsolete = false) {
-            let result = yield this.vueModele.listeTousLogicielsPagine(portableOnly, cacherObsolete, this.currentPage, this.LIMITE);
-            this.listerLogiciels(result.logiciels);
-            this.afficherPagination(result.total, result.page, result.limite);
-        });
-    }
-    afficherPagination(total, page, limite) {
-        let nbPages = Math.ceil(total / limite);
-        let nav = document.getElementById("pagination");
-        if (!nav) {
-            nav = document.createElement("div");
-            nav.id = "pagination";
-            nav.style.textAlign = "center";
-            nav.style.marginTop = "10px";
-            $("main .list").after(nav);
-        }
-        nav.innerHTML = "";
-        // Bouton Précédent
-        if (page > 1) {
-            let btnPrev = document.createElement("button");
-            btnPrev.innerHTML = "◀";
-            btnPrev.onclick = () => {
-                this.currentPage--;
-                this.filtrer();
-            };
-            nav.appendChild(btnPrev);
-        }
-        // Info page
-        let info = document.createElement("span");
-        info.innerHTML = ` Page ${page} / ${nbPages} (${total} logiciels) `;
-        info.style.margin = "0 8px";
-        nav.appendChild(info);
-        // Bouton Suivant
-        if (page < nbPages) {
-            let btnNext = document.createElement("button");
-            btnNext.innerHTML = "▶";
-            btnNext.onclick = () => {
-                this.currentPage++;
-                this.filtrer();
-            };
-            nav.appendChild(btnNext);
-        }
-    }
     effaceLogiciel() {
-        let div = document.getElementById("software");
-        div.innerHTML = "";
+        document.getElementById("software").innerHTML = "";
         $("#actions").addClass("hide");
         this.currentLog = null;
     }
     afficheLogiciel(log) {
         this.effaceLogiciel();
         this.currentLog = log;
-        let div = document.getElementById("software");
-        let div2 = document.createElement("div");
-        div.appendChild(div2);
-        div2.id = "softName";
-        div2.innerHTML = log.nomVersion;
-        div2 = document.createElement("div");
-        div2.id = "softType";
-        div2.innerHTML = log.type;
-        div.appendChild(div2);
-        let divlogin = document.createElement("div");
-        divlogin.classList.add("admin");
-        divlogin.classList.add("info");
-        divlogin.classList.add("auteur");
-        let login = this.currentLog.utilisateur.nom;
-        divlogin.innerHTML = "Logiciel proposé par " + login;
-        div.appendChild(divlogin);
-        let divnouveau = document.createElement("div");
-        divnouveau.classList.add("info");
+        const div = document.getElementById("software");
+        const divNom = document.createElement("div");
+        divNom.id = "softName";
+        divNom.innerHTML = log.nomVersion;
+        div.appendChild(divNom);
+        const divType = document.createElement("div");
+        divType.id = "softType";
+        divType.innerHTML = log.type;
+        div.appendChild(divType);
+        const divAuteur = document.createElement("div");
+        divAuteur.classList.add("admin", "info", "auteur");
+        divAuteur.innerHTML = "Logiciel proposé par " + log.utilisateur.nom;
+        div.appendChild(divAuteur);
+        const divNouveau = document.createElement("div");
+        divNouveau.classList.add("info");
         if (log.estRecent)
-            divnouveau.innerHTML = "nouveau logiciel pour cette année";
-        div.appendChild(divnouveau);
-        let divimg = document.createElement("div");
-        divimg.id = "DivImg";
-        div.appendChild(divimg);
-        if (log.urlImage != undefined && log.urlImage != null && log.urlImage != "") {
-            let img = document.createElement("img");
+            divNouveau.innerHTML = "nouveau logiciel pour cette année";
+        div.appendChild(divNouveau);
+        const divImg = document.createElement("div");
+        divImg.id = "DivImg";
+        if (log.urlImage) {
+            const img = document.createElement("img");
             img.id = "ImgSoft";
             img.src = log.urlImage;
-            divimg.appendChild(img);
+            divImg.appendChild(img);
         }
-        div2 = document.createElement("div");
-        div2.id = "comment";
-        div2.innerHTML = log.comment;
-        div.appendChild(div2);
-        if (log.numero_serie != undefined && log.numero_serie != "") {
-            let divserie = document.createElement("div");
-            divserie.id = "serie";
-            divserie.innerHTML = "Numéro de série : <span>" + log.numero_serie + "</span> ";
-            let button = document.createElement("button");
-            button.innerHTML = "Copier";
-            button.onclick = () => __awaiter(this, void 0, void 0, function* () { yield navigator.clipboard.writeText(log.numero_serie); });
-            divserie.appendChild(button);
-            div.appendChild(divserie);
+        div.appendChild(divImg);
+        const divComment = document.createElement("div");
+        divComment.id = "comment";
+        divComment.innerHTML = log.comment;
+        div.appendChild(divComment);
+        if (log.numero_serie) {
+            const divSerie = document.createElement("div");
+            divSerie.id = "serie";
+            divSerie.innerHTML = "Numéro de série : <span>" + log.numero_serie + "</span> ";
+            const btnCopier = document.createElement("button");
+            btnCopier.innerHTML = "Copier";
+            btnCopier.onclick = () => __awaiter(this, void 0, void 0, function* () { yield navigator.clipboard.writeText(log.numero_serie); });
+            divSerie.appendChild(btnCopier);
+            div.appendChild(divSerie);
         }
-        if (log.urlTuto != "" && log.urlTuto != null) {
-            div2 = document.createElement("div");
-            div2.id = "linkTuto";
-            let a = document.createElement("a");
-            a.href = log.urlTuto;
-            a.target = "_blank";
-            a.innerHTML = "Lien vers le tutoriel d'installation";
-            div2.appendChild(a);
-            div.appendChild(div2);
-        }
-        if (log.urlSetup != "" && log.urlSetup != null) {
-            div2 = document.createElement("div");
-            div2.id = "linkSetup";
-            let a = document.createElement("a");
-            a.href = log.urlSetup;
-            a.target = "_blank";
-            a.innerHTML = "Lien vers l'archive d'installation";
-            div2.appendChild(a);
-            div.appendChild(div2);
-        }
-        if (log.urlPort != "" && log.urlPort != null) {
-            div2 = document.createElement("div");
-            div2.id = "linkPort";
-            let a = document.createElement("a");
-            a.href = log.urlPort;
-            a.target = "_blank";
-            a.innerHTML = "Lien vers une version portable";
-            div2.appendChild(a);
-            div.appendChild(div2);
-        }
+        this.ajouterLien(div, "linkTuto", log.urlTuto, "Lien vers le tutoriel d'installation");
+        this.ajouterLien(div, "linkSetup", log.urlSetup, "Lien vers l'archive d'installation");
+        this.ajouterLien(div, "linkPort", log.urlPort, "Lien vers une version portable");
         $("#actions").removeClass("hide");
+    }
+    ajouterLien(parent, id, url, texte) {
+        if (!url)
+            return;
+        let div = document.createElement("div");
+        div.id = id;
+        let a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.innerHTML = texte;
+        div.appendChild(a);
+        parent.appendChild(div);
+    }
+    typeFiltre() {
+        if ($("#all").prop("checked"))
+            return "all";
+        if ($("#year").prop("checked"))
+            return "year";
+        if ($("#course").prop("checked"))
+            return "course";
+        if ($("#name").prop("checked"))
+            return "name";
+        return "all";
+    }
+    idFiltre() {
+        if ($("#year").prop("checked"))
+            return $("#years option:selected").val();
+        if ($("#course").prop("checked"))
+            return $("#courses option:selected").val();
+        if ($("#name").prop("checked"))
+            return $("#filtrer").val();
+        return null;
     }
     filtrer() {
         return __awaiter(this, void 0, void 0, function* () {
             this.effaceLogiciel();
-            if ($("#all").prop("checked")) {
-                yield this.listerTousLogiciels(this.portOnly.checked, this.cacherObsolete.checked);
-            }
-            else if ($("#year").prop("checked")) {
-                let id = $("#years option:selected").val();
-                let result = yield this.vueModele.listeLogicielsFilierePagine(id, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
-                this.listerLogiciels(result.logiciels);
-                this.afficherPagination(result.total, result.page, result.limite);
-            }
-            else if ($("#course").prop("checked")) {
-                let id = $("#courses option:selected").val();
-                let result = yield this.vueModele.listeLogicielsMatierePagine(id, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
-                this.listerLogiciels(result.logiciels);
-                this.afficherPagination(result.total, result.page, result.limite);
-            }
-            else if ($("#name").prop("checked")) {
-                let name = $("#filtrer").val();
-                let result = yield this.vueModele.listeLogicielsNomPagine(name, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
-                this.listerLogiciels(result.logiciels);
-                this.afficherPagination(result.total, result.page, result.limite);
-            }
+            const result = yield this.filtre.filtrer(this.typeFiltre(), this.idFiltre(), this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
+            this.afficherListe(result.logiciels);
+            this.pagination.afficher(result.total, result.page, result.limite);
         });
     }
 }
 var vue;
-window.onload = () => {
+window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
+    yield initHeader();
     vue = new VueLogiciels();
-    initHeader();
-};
+    yield vue.filtrer();
+});
 window.onpageshow = () => {
-    vue.affiche();
+    if (vue)
+        vue.affiche();
 };

@@ -16,9 +16,9 @@ class UtilisateurDao {
      * @returns l'utilisateur complet
      */
     public async LireUtilisateur(login: string): Promise<Utilisateur> {
-        let user;
+        let user: Utilisateur;
         if (this.cache.has(login)) {
-            user = this.cache.get(login);
+            user = this.cache.get(login)!;
         }
         else {
             user = new Utilisateur();
@@ -37,7 +37,8 @@ class UtilisateurDao {
             user.nom = data.nom;
             user.statut = data.statut;
             user.departement = data.departement;
-            this.cache.set(login,user);
+            user.role = data.role ?? 2;
+            this.cache.set(login, user);
         }
         return user;
     }
@@ -57,6 +58,7 @@ class UtilisateurDao {
         user.nom = data.nom;
         user.statut = data.statut;
         user.departement = data.departement;
+        user.role = data.role ?? 2;
         return user;
     }
      
@@ -64,6 +66,17 @@ class UtilisateurDao {
      * Ajoute, dans le serveur, l'utilisateur indiqué     
      * @param currentUser l'utilisateur a ajouter
      */
+    public async supprimerCompte(login: string, password: string): Promise<boolean> {
+        let ret = await $.ajax({
+            url: "php/user.dao.php",
+            method: "post",
+            dataType: "json",
+            data: { "action": "delete", "login": login, "password": password },
+            error: (xhr) => { console.log(xhr); }
+        });
+        return ret.response === "ok";
+    }
+
     public async ajouteUtilisateur(currentUser: Utilisateur) {
         let ret = await $.ajax({
             url: "php/user.dao.php",

@@ -1,36 +1,36 @@
 <?php
+require_once("database.php");
 require_once("auth.php");
+
 session_start();
+if (!isset($_SESSION["login"])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Non authentifié"]);
+    exit;
+}
 
-/* liste les matières */
-$bdd = new Database();
-$list = array();
-if(isset($_GET["action"]))
-{
+$database = new Database();
+$liste    = array();
+
+if (isset($_GET["action"])) {
     require_admin();
-    if($_GET["action"]=="delete")
-    {
+    if ($_GET["action"] == "delete") {
         $id = $_GET["idlog"];
-        $req = "DELETE FROM Logiciel_Matiere WHERE LogicielID=?";
-        $bdd->execute($req,array($id));
-
+        $database->executer("DELETE FROM Logiciel_Matiere WHERE LogicielID=?", array($id));
     }
     else if ($_GET["action"] === "insert") {
-        $idLogiciel = $_GET["idlog"];
-        $idMatiere  = $_GET["idm"];
         $database->executer(
             "INSERT INTO Logiciel_Matiere(MatiereID, LogicielID) VALUES(?,?);",
-            [$idMatiere, $idLogiciel]
+            [$_GET["idm"], $_GET["idlog"]]
         );
     }
 }
 else if (isset($_GET["idlog"])) {
-    $id    = $_GET["idlog"];
     $liste = $database->lireTous(
         "SELECT id, code, nom FROM Matiere
          JOIN Logiciel_Matiere ON MatiereID = id
          WHERE Logiciel_Matiere.LogicielID=?;",
-        array($id)
+        array($_GET["idlog"])
     );
 }
 else {

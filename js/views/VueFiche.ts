@@ -1,5 +1,7 @@
-﻿/**
- * Vue pour la fiche d'édition d'un logiciel
+/**
+ * Vue pour la fiche d'édition d'un logiciel.
+ * SRP : cette classe gère l'affichage et les interactions du formulaire.
+ * L'upload est délégué à FileUploader.
  */
 class VueFiche
 {
@@ -8,51 +10,50 @@ class VueFiche
     private matieresDAO: MatiereDAO;
     private logicielsDAO: LogicielDAO;
     private utilisateursDAO: UtilisateurDao;
-    private currentLog: Logiciel;
+    private uploader: FileUploader;
+    private currentLog: Logiciel | null;
     private currentUser: Utilisateur;
     private input_serie: HTMLInputElement;
-    constructor() {
 
-        this.input_serie = document.getElementById("serie") as HTMLInputElement;
-        this.currentLog = null; 
-        this.filieresDAO = new FiliereDAO();
-        this.matieresDAO = new MatiereDAO();
-        this.logicielsDAO = new LogicielDAO();
+    constructor() {
+        this.input_serie     = document.getElementById("serie") as HTMLInputElement;
+        this.currentLog      = null;
+        this.filieresDAO     = new FiliereDAO();
+        this.matieresDAO     = new MatiereDAO();
+        this.logicielsDAO    = new LogicielDAO();
         this.utilisateursDAO = new UtilisateurDao();
-        this.vueModele = new VueLogicielsVM(this.filieresDAO, this.matieresDAO, this.logicielsDAO);
+        this.uploader        = new FileUploader();
+        this.vueModele       = new VueLogicielsVM(this.filieresDAO, this.matieresDAO, this.logicielsDAO);
+
         this.listerFilieres();
         this.listerMatieres();
 
-        // récupère l'id via la requête
         let query = window.location.search.substring(1);
-        let id = parseInt(query.split("=")[1]);
-        if(id>0) // modification, pas création
+        let id    = parseInt(query.split("=")[1]);
+        if (id > 0)
             this.afficheLogiciel(id);
 
-        // liaison des events
-        $("#add").on("click", () => { this.ajouterLog(); });
-        $("#remove").on("click", () => { this.retirerLog(); });
-        $("#cancel").on("click", () => { window.history.back(); });
-        $("#ok").on("click", () => { this.valider(); });
-        $("#urlImage").on("input", () => { this.changeThumb(); });
+        $("#add").on("click",      () => this.ajouterLog());
+        $("#remove").on("click",   () => this.retirerLog());
+        $("#cancel").on("click",   () => window.history.back());
+        $("#ok").on("click",       () => this.valider());
+        $("#urlImage").on("input", () => this.changeThumb());
 
-        // récupère l'utilisateur connecté
-        let storage = new UtilisateurStorage();
+        let storage     = new UtilisateurStorage();
         this.currentUser = storage.charge();
     }
 
-    private changeThumb()
-    {
-        $("#thumb").prop("src", this.getFileName("urlImage"));
+    private changeThumb() {
+        $("#thumb").prop("src", this.urlDepuisInput("urlImage"));
     }
-    
+
     private async afficheLogiciel(id: number) {
         this.currentLog = await this.logicielsDAO.getLogiciel(id);
 
-        $("#name").val(this.currentLog.nom);
-        $("#type").val(this.currentLog.type);
-        $("#version").val(this.currentLog.version);
-        $("#desc").val(this.currentLog.comment);
+        ($("#name") as any).val(this.currentLog.nom);
+        ($("#type") as any).val(this.currentLog.type);
+        ($("#version") as any).val(this.currentLog.version);
+        ($("#desc") as any).val(this.currentLog.comment);
 
         $("#setupName").text(this.currentLog.urlSetup);
         $("#tutoName").text(this.currentLog.urlTuto);
@@ -62,50 +63,47 @@ class VueFiche
 
         $("#years .year").prop("checked", false);
         let filieres = await this.filieresDAO.listeLog(this.currentLog);
-        $("#years .year label").each((index, element: HTMLElement) => {
-            if (filieres.find((val) => { return val.nom == element.innerText; }) != undefined)
-            {
-                let cb: HTMLInputElement = element.children.item(0) as HTMLInputElement;
-                cb.checked = true;
+        $("#years .year label").each((index, element: Element) => {
+            const el = element as HTMLElement;
+            if (filieres.find((f) => f.nom == el.innerText) != undefined) {
+                (el.children.item(0) as HTMLInputElement).checked = true;
             }
         });
-        
+
         let matused = await this.matieresDAO.listLog(this.currentLog);
         this.putMatieres(matused, "#uses");
 
         this.input_serie.value = this.currentLog.numero_serie;
     }
 
-    private putFilieres(filieres: Array<Filiere>, selector: string)
-    {
+    private putFilieres(filieres: Array<Filiere>, selector: string) {
         $(selector).html("");
         filieres.forEach((filiere: Filiere) => {
-            let div = document.createElement("div");
+            let div   = document.createElement("div");
             div.classList.add("year");
             let label = document.createElement("label");
             label.innerHTML = filiere.nom;
-            let cb = document.createElement("input");
-            cb.type = "checkbox";
-            cb.value = filiere.id.toString();
+            let cb    = document.createElement("input");
+            cb.type   = "checkbox";
+            cb.value  = filiere.id.toString();
             label.appendChild(cb);
             div.appendChild(label);
             $(selector).append(div);
         });
     }
 
-    private async listerFilieres() {        
+    private async listerFilieres() {
         let filieres = await this.vueModele.listeFilieres();
-        this.putFilieres(filieres, "#years");        
+        this.putFilieres(filieres, "#years");
     }
 
-    private async listerMatieres() {        
+    private async listerMatieres() {
         let matieres = await this.vueModele.listeMatieres();
-        this.putMatieres(matieres, "#courses");        
+        this.putMatieres(matieres, "#courses");
     }
 
-    private putMatieres(matieres: Array<Matiere>, selector: string)
-    {
-        $(selector).html("")
+    private putMatieres(matieres: Array<Matiere>, selector: string) {
+        $(selector).html("");
         matieres.forEach((matiere: Matiere) => {
             let opt = document.createElement("option");
             opt.value = matiere.id.toString();
@@ -115,138 +113,72 @@ class VueFiche
         });
     }
 
-    private ajouterLog()
-    {
-        // ajoute l'option sélectionnée dans courses à la liste uses
+    private ajouterLog() {
         let opt = $("#courses option:selected");
         $("#uses").append(opt);
     }
 
-    private retirerLog()
-    {
-        // retire l'option sélectionnée dans la liste uses        
+    private retirerLog() {
         let opt = $("#uses option:selected");
         $("#courses").append(opt);
     }
 
-    private getFileName(id: string): string {
+    private urlDepuisInput(id: string): string {
         let input = document.getElementById(id) as HTMLInputElement;
-        let files = input.files;
-        let file = "";
-        if (files.length > 0) {
-            let url = files[0].name;            
-            file = "files/" + url;
-        }
-        return file;
+        if (input.files && input.files.length > 0)
+            return "files/" + input.files[0].name;
+        return "";
     }
 
-    private lireChamps(log: Logiciel)
-    {
-        // récupère les champs saisis par l'utilisateur et modifie le logiciel en conséquence
-        log.comment = $("#desc").val();
-        log.nom = $("#name").val();
-        log.type = $("#type").val();
-        log.version = $("#version").val();
-        log.obsolete = $("#obsolete").prop("checked");
+    private lireChamps(log: Logiciel) {
+        log.comment      = ($("#desc") as any).val();
+        log.nom          = ($("#name") as any).val();
+        log.type         = ($("#type") as any).val();
+        log.version      = ($("#version") as any).val();
+        log.obsolete     = ($("#obsolete") as any).prop("checked");
         log.numero_serie = this.input_serie.value;
 
-        //récupérer les noms des URL
-        let url = this.getFileName("urlTuto");
-        if (url != "")
-            log.urlTuto = url;
-        url = this.getFileName("urlSetup");
-        if (url != "")
-            log.urlSetup = url;
-        url = this.getFileName("urlPort");
-        if (url != "")
-            log.urlPort = url;
-        url = this.getFileName("urlImage");
-        if (url != "")
-            log.urlImage = url;
+        let url = this.urlDepuisInput("urlTuto");  if (url) log.urlTuto  = url;
+            url = this.urlDepuisInput("urlSetup"); if (url) log.urlSetup = url;
+            url = this.urlDepuisInput("urlPort");  if (url) log.urlPort  = url;
+            url = this.urlDepuisInput("urlImage"); if (url) log.urlImage = url;
     }
-    private async valider()
-    {
-        // valide les modifications et ferme la fenêtre
-        let nouveau = false;
+
+    private async valider() {
         try {
-            if (this.currentLog == null) // création, pas modification
-            {
+            let nouveau = false;
+            if (this.currentLog == null) {
                 this.currentLog = new Logiciel();
                 nouveau = true;
                 this.currentLog.utilisateur = this.currentUser;
                 this.utilisateursDAO.ajouteUtilisateur(this.currentUser);
             }
-            {
-                $("#ok").addClass("hide");
-                $("#cancel").addClass("hide");
-                this.lireChamps(this.currentLog);                
-                await this.logicielsDAO.majLogiciel(this.currentLog);                
-                // gérer les filières liées
-                let filieres = [];
-                $(".year input").each((index, element: HTMLInputElement) => {
-                    if (element.checked)
-                    {
-                        filieres.push(element.value);
-                    }
-                    
-                });
-                await this.filieresDAO.lierFilieres(this.currentLog, filieres);
-                // gérer les matières liées
-                let matieres = [];
-                $("#uses option").each((index, element: HTMLOptionElement) => {
-                    matieres.push(element.value);
-                });
-                await this.matieresDAO.lierMatieres(this.currentLog, matieres);
 
-                // gérer les fichiers uploadés
-                await this.upload("setup");
-                await this.upload("tuto");
-                await this.upload("port");
-                await this.upload("image");
-                if (nouveau)
-                    alert("Le logiciel a été soumis à l'administrateur.");
-                else
-                    alert("Modifications apportées au logiciel");
-                window.history.back();
-            }
-        }
-        catch (x)
-        {
-            alert(x.message);
-        }
-    }
-    private async upload(id: string) {
-        let selectorFile = "#" + id + " input[type='file']";
-        let selectorRange = "#" + id + " input[type='range']";
-        let input = document.querySelector(selectorFile) as HTMLInputElement;
-        let files = input.files;
-        if (files.length > 0)
-        {
-            let formData = new FormData();
-            formData.append("file", files[0]);
+            $("#ok").addClass("hide");
+            $("#cancel").addClass("hide");
 
-            $(selectorRange).removeClass("hide");
-            let data = await $.ajax({
-                xhr: () => {
-                    let xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener("progress", (evt) => {
-                        if (evt.lengthComputable)
-                        {
-                            let complete = (evt.loaded / evt.total) * 100;
-                            $(selectorRange).val(complete);
-                        }
-                    },false);
-                    return xhr;
-                },
-                method: "post",
-                url: "php/upload.php",
-                data: formData,
-                contentType: false,
-                processData: false,                
-                error: (obj, status, error) => { console.log(error); } // todo better
-            });
-            console.log(data); // todo better
-            $(selectorRange).addClass("hide");
+            this.lireChamps(this.currentLog);
+            await this.logicielsDAO.majLogiciel(this.currentLog);
+
+            let filieres: number[] = [];
+            $(".year input").each((i, el: Element) => { const cb = el as HTMLInputElement; if (cb.checked) filieres.push(parseInt(cb.value)); });
+            await this.filieresDAO.lierFilieres(this.currentLog!, filieres);
+
+            let matieres: number[] = [];
+            $("#uses option").each((i, el: Element) => { matieres.push(parseInt((el as HTMLOptionElement).value)); });
+            await this.matieresDAO.lierMatieres(this.currentLog!, matieres);
+
+            // SRP : l'upload est délégué à FileUploader
+            await this.uploader.upload("setup");
+            await this.uploader.upload("tuto");
+            await this.uploader.upload("port");
+            await this.uploader.upload("image");
+
+            alert(nouveau ? "Le logiciel a été soumis à l'administrateur." : "Modifications apportées au logiciel");
+            window.history.back();
+        }
+        catch (x: unknown) {
+            alert(x instanceof Error ? x.message : String(x));
         }
     }
 }
@@ -254,4 +186,4 @@ class VueFiche
 window.onload = () => {
     let view = new VueFiche();
     initHeader();
-}
+};
