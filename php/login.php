@@ -4,10 +4,9 @@ require_once("user.dao.php");
 
 session_start();
 
-$bdd = new Database();
-$dao = new UserDao($bdd);
-
-$utilisateur = $dao->readUser($_POST["login"]);
+$database = new Database();
+$daoUtilisateur = new UserDao($database);
+$utilisateur = $daoUtilisateur->lireUtilisateur($_POST["login"]);
 $resultat = "error";
 
 if (isset($utilisateur["hashpass"]) && password_verify($_POST["password"], $utilisateur["hashpass"])) {

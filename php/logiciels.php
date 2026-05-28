@@ -8,23 +8,22 @@ if (!isset($_SESSION["login"])) {
 }
 
 require_once("logiciels.dao.php");
-$bdd = new Database();
-$dao = new LogicielsDao($bdd);
+$database = new Database();
+$daoLogiciels = new LogicielsDao($database);
 
-$list = array();
-
-$portable  = isset($_GET["portable"])  ? filter_var($_GET["portable"],  FILTER_VALIDATE_BOOLEAN) : false;
-$cacherObs = isset($_GET["obsolete"])  ? filter_var($_GET["obsolete"],  FILTER_VALIDATE_BOOLEAN) : false;
+$liste = array();
+$portable = isset($_GET["portable"]) ? filter_var($_GET["portable"], FILTER_VALIDATE_BOOLEAN) : false;
+$cacherObsolete = isset($_GET["obsolete"]) ? filter_var($_GET["obsolete"], FILTER_VALIDATE_BOOLEAN) : false;
 
 if (isset($_GET["action"])) {
     if ($_GET["action"] === "update") {
-        $dao->majLogiciel($_GET);
+        $daoLogiciels->mettreAJourLogiciel($_GET);
     }
     else if ($_GET["action"] === "insert") {
-        $list["id"] = $dao->addLogiciel($_GET);
+        $liste["id"] = $daoLogiciels->ajouterLogiciel($_GET);
     }
     else if ($_GET["action"] === "delete") {
-        $dao->delLogiciel($_GET);
+        $daoLogiciels->supprimerLogiciel($_GET);
     }
 }
 else if (isset($_GET["idmat"])) {
@@ -35,35 +34,32 @@ else if (isset($_GET["idmat"])) {
         echo json_encode(["error" => "Paramètre idmat invalide"]);
         exit;
     }
-    $list = $dao->listByMatiere($id, $portable, $cacherObs);
+    $liste = $daoLogiciels->listerParMatiere($id, $portable, $cacherObsolete);
 }
 else if (isset($_GET["idfil"])) {
-    // A4 : on vérifie que idfil est bien un entier
     $id = filter_var($_GET["idfil"], FILTER_VALIDATE_INT);
     if ($id === false) {
         http_response_code(400);
         echo json_encode(["error" => "Paramètre idfil invalide"]);
         exit;
     }
-    $list = $dao->listByFiliere($id, $portable, $cacherObs);
+    $liste = $daoLogiciels->listerParFiliere($id, $portable, $cacherObsolete);
 }
 else if (isset($_GET["nom"])) {
-    // A4 : on nettoie la chaîne de recherche
-    $nom  = strip_tags($_GET["nom"]);
-    $list = $dao->listByName($nom, $portable, $cacherObs);
+    $nom   = strip_tags($_GET["nom"]);
+    $liste = $daoLogiciels->listerParNom($nom, $portable, $cacherObsolete);
 }
 else if (isset($_GET["id"])) {
-    // A4 : on vérifie que id est bien un entier
     $id = filter_var($_GET["id"], FILTER_VALIDATE_INT);
     if ($id === false) {
         http_response_code(400);
         echo json_encode(["error" => "Paramètre id invalide"]);
         exit;
     }
-    $list = $dao->listById($id);
+    $liste = $daoLogiciels->listerParId($id);
 }
 else {
-    $list = $dao->listAll($portable, $cacherObs);
+    $liste = $daoLogiciels->listerTous($portable, $cacherObsolete);
 }
 
-echo json_encode($list);
+echo json_encode($liste);
