@@ -19,7 +19,7 @@ L'application distingue trois rôles utilisateurs :
 - **Administrateur** : mêmes droits que l'enseignant, plus la possibilité de modifier et supprimer des fiches logiciel.
 
 Les fonctionnalités principales sont :
-- Connexion avec authentification par login et mot de passe hashé (SHA-256)
+- Connexion avec authentification par login et mot de passe hashé
 - Liste des logiciels filtrables par filière, matière, nom ou portabilité
 - Fiche détaillée par logiciel avec description, fichiers et numéro de série
 - Éditeur de fiche logiciel avec gestion des filières et matières associées

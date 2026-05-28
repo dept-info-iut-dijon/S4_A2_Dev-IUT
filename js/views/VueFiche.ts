@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Vue pour la fiche d'édition d'un logiciel.
  * L'upload est délégué à FileUploader.
  */
@@ -167,6 +167,13 @@ class VueFiche
 
     private async valider()
     {
+        // ERG-20 : validation avant envoi nom et type obligatoires
+        let nom = ($("#name").val() as string).trim();
+        let type = ($("#type").val() as string).trim();
+        if (nom === "" || type === "") {
+            alert("Le nom et le type du logiciel sont obligatoires.");
+            return;
+        }
         let nouveau = false;
         try {
             if (this.currentLog == null)
