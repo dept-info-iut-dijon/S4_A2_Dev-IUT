@@ -7,7 +7,7 @@ class UserDao
     private Database $bdd;
     /**
      * Initialise l'objet
-     * @param Database $bdd la base de donn�es li�e
+     * @param Database $bdd la base de données liée
      */
     public function __construct(Database $bdd)
     {
@@ -31,7 +31,7 @@ class UserDao
      */
     public function addUser($user){        
         $added=false;
-        $req = "INSERT INTO Utilisateur(login,nom,statut,departement,role) VALUES(?,?,?,?,1);";
+        $req = "INSERT INTO Utilisateur(login,nom,statut,departement,role) VALUES(?,?,?,?,2);";
         $this->bdd->execute($req,[$user["login"],$user["nom"],$user["statut"],$user["departement"]]);
         $added=true;
         return $added;
@@ -39,13 +39,25 @@ class UserDao
 }
 if(isset($_POST["action"]))
 {
+    session_start();
+    if (!isset($_SESSION['login'])) 
+    {
+        http_response_code(401);
+        echo json_encode(["error" => "Non authentifié"]);
+        exit;
+    }
+
     $bdd = new Database();
     $dao = new UserDao($bdd);
 
     $action=$_POST["action"];
     if($action=="read" && isset($_POST["login"]))
     {
-        echo json_encode($dao->readUser($_POST["login"]));
+        $result = $dao->readUser($_POST["login"]);
+        if ($result) {
+            unset($result['hashpass']); // pour ne pas exposer le hash et donc eviter les rainbow table
+        }
+        echo json_encode($result);
     }
     else if($action=="add")
     {
