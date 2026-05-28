@@ -138,7 +138,7 @@ class VueFiche
         let input = document.getElementById(id) as HTMLInputElement;
         let files = input.files;
         let file = "";
-        if (files.length > 0) {
+        if (files && files.length > 0) {
             let url = files[0].name;
             file = "files/" + url;
         }
@@ -154,13 +154,13 @@ class VueFiche
         log.obsolete = $("#obsolete").prop("checked");
         log.numero_serie = this.input_serie.value;
 
-        let url = this.getFileName("urlTuto");
+        let url = this.urlDepuisInput("urlTuto");
         if (url != "") log.urlTuto = url;
-        url = this.getFileName("urlSetup");
+        url = this.urlDepuisInput("urlSetup");
         if (url != "") log.urlSetup = url;
-        url = this.getFileName("urlPort");
+        url = this.urlDepuisInput("urlPort");
         if (url != "") log.urlPort = url;
-        url = this.getFileName("urlImage");
+        url = this.urlDepuisInput("urlImage");
         if (url != "") log.urlImage = url;
     }
 
@@ -181,24 +181,23 @@ class VueFiche
                 this.lireChamps(this.currentLog);
                 await this.logicielsDAO.majLogiciel(this.currentLog);
 
-                let filieres = [];
-                $(".year input").each((index, element: HTMLInputElement) => {
-                    if (element.checked) {
-                        filieres.push(element.value);
-                    }
+                let filieres: number[] = [];
+                $(".year input").each((index, element: Element) => {
+                    const cb = element as HTMLInputElement;
+                    if (cb.checked) filieres.push(parseInt(cb.value));
                 });
                 await this.filieresDAO.lierFilieres(this.currentLog, filieres);
 
-                let matieres = [];
-                $("#uses option").each((index, element: HTMLOptionElement) => {
-                    matieres.push(element.value);
+                let matieres: number[] = [];
+                $("#uses option").each((index, element: Element) => {
+                    matieres.push(parseInt((element as HTMLOptionElement).value));
                 });
                 await this.matieresDAO.lierMatieres(this.currentLog, matieres);
 
-                await this.upload("setup");
-                await this.upload("tuto");
-                await this.upload("port");
-                await this.upload("image");
+                await this.uploader.upload("setup");
+                await this.uploader.upload("tuto");
+                await this.uploader.upload("port");
+                await this.uploader.upload("image");
 
                 if (nouveau)
                     alert("Le logiciel a été soumis à l'administrateur.");
@@ -213,39 +212,6 @@ class VueFiche
         }
     }
 
-    private async upload(id: string) {
-        let selectorFile = "#" + id + " input[type='file']";
-        let selectorRange = "#" + id + " input[type='range']";
-        let input = document.querySelector(selectorFile) as HTMLInputElement;
-        let files = input.files;
-        if (files.length > 0)
-        {
-            let formData = new FormData();
-            formData.append("file", files[0]);
-            $(selectorRange).removeClass("hide");
-            let data = await $.ajax({
-                xhr: () => {
-                    let xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener("progress", (evt) => {
-                        if (evt.lengthComputable)
-                        {
-                            let complete = (evt.loaded / evt.total) * 100;
-                            $(selectorRange).val(complete);
-                        }
-                    }, false);
-                    return xhr;
-                },
-                method: "post",
-                url: "php/upload.php",
-                data: formData,
-                contentType: false,
-                processData: false,
-                error: (obj, status, error) => { console.log(error); }
-            });
-            console.log(data);
-            $(selectorRange).addClass("hide");
-        }
-    }
 }
 
 window.onload = () => {

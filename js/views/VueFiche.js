@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 /**
  * Vue pour la fiche d'édition d'un logiciel.
+ * L'upload est délégué à FileUploader.
  */
 class VueFiche {
     constructor() {
@@ -28,7 +29,7 @@ class VueFiche {
         if (id > 0)
             this.afficheLogiciel(id);
         $("#add").on("click", () => { this.ajouterLog(); });
-        $("#remove").on("click", () => { this.retirerLog(); }); 
+        $("#remove").on("click", () => { this.retirerLog(); });
         $("#cancel").on("click", () => {
             if (window.confirm("Les modifications non enregistrées seront perdues. Continuer ?")) {
                 window.history.back();
@@ -57,34 +58,31 @@ class VueFiche {
             $("#years .year").prop("checked", false);
             let filieres = yield this.filieresDAO.listeLog(this.currentLog);
             $("#years .year").each((index, element) => {
-            let label = element.querySelector("label");
-            let cb = element.querySelector("input[type='checkbox']");
-            if (label && cb && filieres.find((val) => val.nom == label.innerText) != undefined) {
-                cb.checked = true;
-            }
-        });
+                let label = element.querySelector("label");
+                let cb = element.querySelector("input[type='checkbox']");
+                if (label && cb && filieres.find((val) => val.nom == label.innerText) != undefined) {
+                    cb.checked = true;
+                }
+            });
             let matused = yield this.matieresDAO.listLog(this.currentLog);
             this.putMatieres(matused, "#uses");
             this.input_serie.value = this.currentLog.numero_serie;
         });
     }
-        putFilieres(filieres, selector) {
+    putFilieres(filieres, selector) {
         $(selector).html("");
         filieres.forEach((filiere) => {
             let div = document.createElement("div");
             div.classList.add("year");
-
             let cb = document.createElement("input");
             cb.type = "checkbox";
             cb.value = filiere.id.toString();
             cb.id = "filiere_" + filiere.id;
-
             let label = document.createElement("label");
-            label.htmlFor = cb.id;    
+            label.htmlFor = cb.id;
             label.innerHTML = filiere.nom;
-
-            div.appendChild(cb);        
-            div.appendChild(label);     
+            div.appendChild(cb);
+            div.appendChild(label);
             $(selector).append(div);
         });
     }
@@ -120,9 +118,13 @@ class VueFiche {
     }
     urlDepuisInput(id) {
         let input = document.getElementById(id);
-        if (input.files && input.files.length > 0)
-            return "files/" + input.files[0].name;
-        return "";
+        let files = input.files;
+        let file = "";
+        if (files && files.length > 0) {
+            let url = files[0].name;
+            file = "files/" + url;
+        }
+        return file;
     }
     lireChamps(log) {
         log.comment = $("#desc").val();
@@ -132,26 +134,20 @@ class VueFiche {
         log.obsolete = $("#obsolete").prop("checked");
         log.numero_serie = this.input_serie.value;
         let url = this.urlDepuisInput("urlTuto");
-        if (url)
+        if (url != "")
             log.urlTuto = url;
         url = this.urlDepuisInput("urlSetup");
-        if (url)
+        if (url != "")
             log.urlSetup = url;
         url = this.urlDepuisInput("urlPort");
-        if (url)
+        if (url != "")
             log.urlPort = url;
         url = this.urlDepuisInput("urlImage");
-        if (url)
+        if (url != "")
             log.urlImage = url;
     }
     valider() {
         return __awaiter(this, void 0, void 0, function* () {
-            let nom = $("#name").val().trim();
-            let type = $("#type").val().trim();
-            if (nom === "" || type === "") {
-                alert("Le nom et le type du logiciel sont obligatoires.");
-                return;
-            }
             let nouveau = false;
             try {
                 if (this.currentLog == null) {
@@ -160,26 +156,36 @@ class VueFiche {
                     this.currentLog.utilisateur = this.currentUser;
                     this.utilisateursDAO.ajouteUtilisateur(this.currentUser);
                 }
-                $("#ok").addClass("hide");
-                $("#cancel").addClass("hide");
-                this.lireChamps(this.currentLog);
-                yield this.logicielsDAO.majLogiciel(this.currentLog);
-                let filieres = [];
-                $(".year input").each((i, el) => { const cb = el; if (cb.checked)
-                    filieres.push(parseInt(cb.value)); });
-                yield this.filieresDAO.lierFilieres(this.currentLog, filieres);
-                let matieres = [];
-                $("#uses option").each((i, el) => { matieres.push(parseInt(el.value)); });
-                yield this.matieresDAO.lierMatieres(this.currentLog, matieres);
-                yield this.uploader.upload("setup");
-                yield this.uploader.upload("tuto");
-                yield this.uploader.upload("port");
-                yield this.uploader.upload("image");
-                alert(nouveau ? "Le logiciel a été soumis à l'administrateur." : "Modifications apportées au logiciel");
-                window.history.back();
+                {
+                    $("#ok").addClass("hide");
+                    $("#cancel").addClass("hide");
+                    this.lireChamps(this.currentLog);
+                    yield this.logicielsDAO.majLogiciel(this.currentLog);
+                    let filieres = [];
+                    $(".year input").each((index, element) => {
+                        const cb = element;
+                        if (cb.checked)
+                            filieres.push(parseInt(cb.value));
+                    });
+                    yield this.filieresDAO.lierFilieres(this.currentLog, filieres);
+                    let matieres = [];
+                    $("#uses option").each((index, element) => {
+                        matieres.push(parseInt(element.value));
+                    });
+                    yield this.matieresDAO.lierMatieres(this.currentLog, matieres);
+                    yield this.uploader.upload("setup");
+                    yield this.uploader.upload("tuto");
+                    yield this.uploader.upload("port");
+                    yield this.uploader.upload("image");
+                    if (nouveau)
+                        alert("Le logiciel a été soumis à l'administrateur.");
+                    else
+                        alert("Modifications apportées au logiciel");
+                    window.history.back();
+                }
             }
             catch (x) {
-                alert(x instanceof Error ? x.message : String(x));
+                alert(x.message);
             }
         });
     }
