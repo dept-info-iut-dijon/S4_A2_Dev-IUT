@@ -10,7 +10,7 @@ class Utilisateur
     public set login(value: string) {
         this._login = value;
     }
-    private _nom: string;
+    private _nom!: string;
     public get nom(): string {
         return this._nom;
     }
@@ -24,7 +24,7 @@ class Utilisateur
     public set statut(value: string) {
         this._statut = value;
     }
-    private _departement: string;
+    private _departement!: string;
     public get departement(): string {
         return this._departement;
     }
@@ -32,8 +32,16 @@ class Utilisateur
         this._departement = value;
     }
 
+    private _role: number;
+    public get role(): number {
+        return this._role;
+    }
+    public set role(value: number) {
+        this._role = value;
+    }
+
     public get estAdmin(): boolean {
-        return this._login.toLowerCase() == "aguidet";
+        return this._role === 1;
     }
 
     public get estProf(): boolean {
@@ -42,6 +50,7 @@ class Utilisateur
 
     public constructor(login: string = "") {
         this._login = login;
-        this._statut = "enseignant"; // par défaut, mais devrait être lu depuis la base
+        this._statut = "enseignant";
+        this._role = 2;
     }
 }

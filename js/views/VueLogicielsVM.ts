@@ -85,4 +85,31 @@ class VueLogicielsVM
         return await this.ldao.listNom(name, portable, cacherObsolete);
     }
 
+    async listeLogicielsFilierePagine(idfiliere: number, portable: boolean, obsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        return await this.ldao.listFilierePagine(idfiliere, portable, obsolete, page, limite);
+    }
+
+    async listeLogicielsMatierePagine(idmatiere: number, portable: boolean, cacherObsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        return await this.ldao.listMatierePagine(idmatiere, portable, cacherObsolete, page, limite);
+    }
+
+    async listeLogicielsNomPagine(name: string, portable: boolean, cacherObsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        return await this.ldao.listNomPagine(name, portable, cacherObsolete, page, limite);
+    }
+
+    /**
+     * Liste tous les logiciels avec pagination
+     * @param portableOnly pour indiquer si on ne conserve que les portables
+     * @param cacherObsolete pour indiquer si on cache les logiciels obsolètes
+     * @param page numéro de page
+     * @param limite nombre par page
+     */
+    async listeTousLogicielsPagine(portableOnly: boolean = false, cacherObsolete: boolean = false, page: number = 1, limite: number = 20): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        return await this.ldao.listAllPagine(portableOnly, cacherObsolete, page, limite);
+    }
+
 }

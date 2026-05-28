@@ -27,14 +27,21 @@ class Utilisateur {
     set departement(value) {
         this._departement = value;
     }
+    get role() {
+        return this._role;
+    }
+    set role(value) {
+        this._role = value;
+    }
     get estAdmin() {
-        return this._login.toLowerCase() == "aguidet";
+        return this._role === 1;
     }
     get estProf() {
         return this._statut.toLowerCase().substr(0, 3) == "ens";
     }
     constructor(login = "") {
         this._login = login;
-        this._statut = "enseignant"; // par défaut, mais devrait être lu depuis la base
+        this._statut = "enseignant";
+        this._role = 2;
     }
 }

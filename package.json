@@ -1,5 +1,18 @@
 {
-  "dependencies": {
-    "typescript": "^6.0.3"
-  }
+  "name": "softs",
+  "version": "1.0.0",
+  "description": "Application de gestion des logiciels du département informatique IUT Dijon-Auxerre-Nevers",
+  "scripts": {
+    "build": "tsc",
+    "minify-css": "cssnano css/styles.css css/styles.min.css && cssnano css/accueil.css css/accueil.min.css && cssnano css/index.css css/index.min.css"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "cssnano": "^6.0.0",
+    "terser": "^5.0.0"
+    "jest": "^29.7.0",
+  "scripts": {
+    "test": "jest",
+    "pretest": "tsc"
+  },
 }
