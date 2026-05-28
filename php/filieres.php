@@ -1,4 +1,16 @@
 <?php
+/**
+ * Point d'entrée API pour la gestion des filières.
+ * Gère les opérations de lecture, insertion et suppression
+ * des associations entre logiciels et filières.
+ * Nécessite une session active (utilisateur connecté).
+ *
+ * Paramètres GET acceptés :
+ * - action=delete & idlog : supprime toutes les filières liées à un logiciel
+ * - action=insert & idlog & idf : associe une filière à un logiciel
+ * - id : retourne les filières associées à un logiciel donné
+ * - (aucun) : retourne la liste complète des filières
+ */
 session_start();
 if (!isset($_SESSION["login"])) {
     http_response_code(401);
