@@ -1,5 +1,18 @@
 <?php
+/**
+ * Point d'entrée API pour la gestion des matières.
+ * Gère les opérations de lecture, insertion et suppression
+ * des associations entre logiciels et matières.
+ * Nécessite une session active (utilisateur connecté).
+ *
+ * Paramètres GET acceptés :
+ * - action=delete & idlog : supprime toutes les matières liées à un logiciel
+ * - action=insert & idlog & idm : associe une matière à un logiciel
+ * - idlog : retourne les matières associées à un logiciel donné
+ * - (aucun) : retourne la liste complète des matières
+ */
 
+// Vérification que l'utilisateur est connecté
 session_start();
 if (!isset($_SESSION["login"])) {
     http_response_code(401);
@@ -45,3 +58,4 @@ try {
 }
 
 echo json_encode($list);
+?>
