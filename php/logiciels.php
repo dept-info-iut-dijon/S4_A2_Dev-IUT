@@ -36,6 +36,7 @@ $list = array();
 $portable  = isset($_GET["portable"]) ? filter_var($_GET["portable"], FILTER_VALIDATE_BOOLEAN) : false;
 $cacherObs = isset($_GET["obsolete"]) ? filter_var($_GET["obsolete"], FILTER_VALIDATE_BOOLEAN) : false;
 
+try {
 if (isset($_GET["action"])) {
     if ($_GET["action"] === "update") {
         // Mise à jour d'un logiciel existant
@@ -88,6 +89,12 @@ else if (isset($_GET["id"])) {
 else {
     // Liste complète des logiciels
     $list = $dao->listAll($portable, $cacherObs);
+}
+} catch (Exception $e) {
+    error_log('[logiciels] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["error" => "Erreur du serveur"]);
+    exit;
 }
 
 echo json_encode($list);
