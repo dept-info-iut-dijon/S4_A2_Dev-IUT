@@ -1,44 +1,57 @@
 <?php
 require_once("database.php");
+require_once("constants.php");
 
 class UserDao
 {
-    private Database $bdd;
+    private Database $database;
 
-    public function __construct(Database $bdd)
+    /**
+     * Initialise l'objet
+     * @param Database $bdd la base de données liée
+     */
+    public function __construct(Database $database)
     {
-        $this->bdd = $bdd;
+        $this->database = $database;
     }
 
-    public function readUser($login)
+     /**
+     * Read a user
+     * @param string $login the login
+     * @return mixed user on array
+     */
+    public function lireUtilisateur($login)
     {
-        $req = "SELECT * FROM Utilisateur WHERE login=?";
-        return $this->bdd->queryOne($req, [$login]);
+        $requete = "SELECT * FROM Utilisateur WHERE login=?";
+        return $this->database->lireUn($requete, [$login]);
     }
 
-    public function addUser($user)
+    public function ajouterUtilisateur($utilisateur)
     {
-        $hash = password_hash($user["password"], PASSWORD_BCRYPT);
-        $req  = "INSERT INTO Utilisateur(login, nom, statut, departement, role, hashpass) VALUES(?,?,?,?,1,?);";
-        $this->bdd->execute($req, [$user["login"], $user["nom"], $user["statut"], $user["departement"], $hash]);
+        $empreinte = password_hash($utilisateur["password"], PASSWORD_BCRYPT);
+        $requete = "INSERT INTO Utilisateur(login, nom, statut, departement, role, hashpass) VALUES(?,?,?,?," . ROLE_PROF . ",?)";
+        $this->database->executer($requete, [
+            $utilisateur["login"], $utilisateur["nom"],
+            $utilisateur["statut"], $utilisateur["departement"], $empreinte
+        ]);
         return true;
     }
 }
 
 if (isset($_POST["action"])) {
-    $bdd = new Database();
-    $dao = new UserDao($bdd);
+    $database = new Database();
+    $daoUtilisateur = new UserDao($database);
 
     if ($_POST["action"] === "read" && isset($_POST["login"])) {
-        echo json_encode($dao->readUser($_POST["login"]));
+        echo json_encode($daoUtilisateur->lireUtilisateur($_POST["login"]));
     }
     else if ($_POST["action"] === "add") {
         try {
-            $ret = $dao->addUser($_POST);
-            echo json_encode(["response" => "ok", "message" => $ret]);
+            $resultat = $daoUtilisateur->ajouterUtilisateur($_POST);
+            echo json_encode(["response" => "ok", "message" => $resultat]);
         }
-        catch (Exception $e) {
-            echo json_encode(["response" => "error", "message" => $e->getMessage()]);
+        catch (Exception $exception) {
+            echo json_encode(["response" => "error", "message" => $exception->getMessage()]);
         }
     }
 }

@@ -1,32 +1,32 @@
 <?php
-
+require_once("auth.php");
 session_start();
-if (!isset($_SESSION["login"])) {
-    http_response_code(401);
-    echo json_encode(["error" => "Non authentifié"]);
-    exit;
-}
 
-require_once("database.php");
-$bdd  = new Database();
+/* liste les matières */
+$bdd = new Database();
 $list = array();
-
-if (isset($_GET["action"])) {
-    if ($_GET["action"] === "delete") {
-        $id  = $_GET["idlog"];
+if(isset($_GET["action"]))
+{
+    require_admin();
+    if($_GET["action"]=="delete")
+    {
+        $id = $_GET["idlog"];
         $req = "DELETE FROM Logiciel_Matiere WHERE LogicielID=?";
-        $bdd->execute($req, array($id));
+        $bdd->execute($req,array($id));
+
     }
     else if ($_GET["action"] === "insert") {
-        $idlog = $_GET["idlog"];
-        $idm   = $_GET["idm"];
-        $req   = "INSERT INTO Logiciel_Matiere(MatiereID, LogicielID) VALUES(?,?);";
-        $bdd->execute($req, [$idm, $idlog]);
+        $idLogiciel = $_GET["idlog"];
+        $idMatiere  = $_GET["idm"];
+        $database->executer(
+            "INSERT INTO Logiciel_Matiere(MatiereID, LogicielID) VALUES(?,?);",
+            [$idMatiere, $idLogiciel]
+        );
     }
 }
 else if (isset($_GET["idlog"])) {
-    $id   = $_GET["idlog"];
-    $list = $bdd->queryAll(
+    $id    = $_GET["idlog"];
+    $liste = $database->lireTous(
         "SELECT id, code, nom FROM Matiere
          JOIN Logiciel_Matiere ON MatiereID = id
          WHERE Logiciel_Matiere.LogicielID=?;",
@@ -34,7 +34,7 @@ else if (isset($_GET["idlog"])) {
     );
 }
 else {
-    $list = $bdd->queryAll("SELECT id, code, nom FROM Matiere;", array());
+    $liste = $database->lireTous("SELECT id, code, nom FROM Matiere;", array());
 }
 
-echo json_encode($list);
+echo json_encode($liste);

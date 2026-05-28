@@ -297,6 +297,11 @@ iframe{
     margin-right: auto;
 }
 
+/* ENV-11 : style de l'iframe contact déplacé depuis l'HTML inline */
+.col-left iframe {
+    border: 1px solid black;
+}
+
 
 
 

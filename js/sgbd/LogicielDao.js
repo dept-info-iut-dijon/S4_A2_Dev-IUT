@@ -52,7 +52,11 @@ class LogicielDAO {
                 logiciel.obsolete = obj.obsolete == 1;
                 logiciel.date_ajout = new Date(obj.date_ajout);
                 logiciel.numero_serie = obj.numero_serie;
-                let user = yield this.userDao.LireUtilisateur(obj.utilisateur);
+                let user = new Utilisateur();
+                user.login = obj.utilisateur;
+                user.nom = obj.utilisateurNom;
+                user.statut = obj.utilisateurStatut;
+                user.departement = obj.utilisateurDepartement;
                 logiciel.utilisateur = user;
                 list.push(logiciel);
             }
@@ -167,6 +171,45 @@ class LogicielDAO {
             return list;
         });
     }
+    listFilierePagine(idfiliere, portable, obsolete, page, limite) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data = yield $.ajax({
+                method: "get",
+                dataType: "json",
+                data: { "idfil": idfiliere, "portable": portable, "obsolete": obsolete, "page": page, "limite": limite },
+                url: "php/logiciels.php",
+                error: (obj, status, error) => { console.log(error); }
+            });
+            let logiciels = yield this.getData(data.logiciels);
+            return { logiciels, total: data.total, page: data.page, limite: data.limite };
+        });
+    }
+    listMatierePagine(idmatiere, portable, cacherObsolete, page, limite) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data = yield $.ajax({
+                method: "get",
+                dataType: "json",
+                data: { "idmat": idmatiere, "portable": portable, "obsolete": cacherObsolete, "page": page, "limite": limite },
+                url: "php/logiciels.php",
+                error: (obj, status, error) => { console.log(error); }
+            });
+            let logiciels = yield this.getData(data.logiciels);
+            return { logiciels, total: data.total, page: data.page, limite: data.limite };
+        });
+    }
+    listNomPagine(name, portable, cacherObsolete, page, limite) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data = yield $.ajax({
+                method: "get",
+                dataType: "json",
+                data: { "nom": name, "portable": portable, "obsolete": cacherObsolete, "page": page, "limite": limite },
+                url: "php/logiciels.php",
+                error: (obj, status, error) => { console.log(error); }
+            });
+            let logiciels = yield this.getData(data.logiciels);
+            return { logiciels, total: data.total, page: data.page, limite: data.limite };
+        });
+    }
     /**
      * Met à jour le logiciel depuis le SGBD
      * @param log le logiciel à mettre à jour
@@ -198,6 +241,32 @@ class LogicielDAO {
             if (log.estNouveau) {
                 log.id = parseInt(retour["id"].AUTO_INCREMENT, 10);
             }
+        });
+    }
+    /**
+     * Liste les logiciels avec pagination
+     * @param portableOnly indique si l'on ne souhaite que les portables
+     * @param cacherObsolete pour indiquer si on cache les logiciels obsolètes ou non
+     * @param page numéro de page (commence à 1)
+     * @param limite nombre de résultats par page
+     * @returns les logiciels de la page + le total
+     */
+    listAllPagine(portableOnly, cacherObsolete, page, limite) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data = yield $.ajax({
+                method: "get",
+                data: {
+                    "portable": portableOnly,
+                    "obsolete": cacherObsolete,
+                    "page": page,
+                    "limite": limite
+                },
+                dataType: "json",
+                url: "php/logiciels.php",
+                error: (obj, status, error) => { console.log(error); }
+            });
+            let logiciels = yield this.getData(data.logiciels);
+            return { logiciels, total: data.total, page: data.page, limite: data.limite };
         });
     }
 }

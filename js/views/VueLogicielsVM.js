@@ -88,4 +88,31 @@ class VueLogicielsVM {
             return yield this.ldao.listNom(name, portable, cacherObsolete);
         });
     }
+    listeLogicielsFilierePagine(idfiliere, portable, obsolete, page, limite) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.ldao.listFilierePagine(idfiliere, portable, obsolete, page, limite);
+        });
+    }
+    listeLogicielsMatierePagine(idmatiere, portable, cacherObsolete, page, limite) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.ldao.listMatierePagine(idmatiere, portable, cacherObsolete, page, limite);
+        });
+    }
+    listeLogicielsNomPagine(name, portable, cacherObsolete, page, limite) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.ldao.listNomPagine(name, portable, cacherObsolete, page, limite);
+        });
+    }
+    /**
+     * Liste tous les logiciels avec pagination
+     * @param portableOnly pour indiquer si on ne conserve que les portables
+     * @param cacherObsolete pour indiquer si on cache les logiciels obsolètes
+     * @param page numéro de page
+     * @param limite nombre par page
+     */
+    listeTousLogicielsPagine() {
+        return __awaiter(this, arguments, void 0, function* (portableOnly = false, cacherObsolete = false, page = 1, limite = 20) {
+            return yield this.ldao.listAllPagine(portableOnly, cacherObsolete, page, limite);
+        });
+    }
 }

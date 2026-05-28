@@ -1,21 +1,35 @@
 <?php
+/**
+ * Point d'entrée pour l'authentification des utilisateurs.
+ * Vérifie les identifiants transmis via POST et ouvre une session
+ * si l'authentification réussit.
+ *
+ * Paramètres POST acceptés :
+ * - login : identifiant de l'utilisateur
+ * - password : mot de passe hashé en SHA-256 côté client
+ *
+ * Retourne un JSON : {"result":"ok"} ou {"result":"error"}
+ */
 require_once("database.php");
 require_once("user.dao.php");
 
-session_start();
-
-$bdd = new Database();
-$dao = new UserDao($bdd);
-
-$utilisateur = $dao->readUser($_POST["login"]);
-$resultat = "error";
-
-if (isset($utilisateur["hashpass"]) && password_verify($_POST["password"], $utilisateur["hashpass"])) {
-    $_SESSION["login"]       = $_POST["login"];
-    $_SESSION["name"]        = $utilisateur["nom"];
-    $_SESSION["statut"]      = $utilisateur["statut"];
-    $_SESSION["departement"] = $utilisateur["departement"];
-    $resultat = "ok";
-}
-
-echo json_encode(["result" => $resultat]);
+    if(isset($_POST["login"]))
+    {
+        $bdd = new Database();
+        $dao = new UserDao($bdd);
+        $userArray = $dao->readUser($_POST["login"]);
+        $connected = "error";
+        if(isset($userArray["hashpass"]) && $userArray["hashpass"] == $_POST["password"])
+            {
+                session_start();
+                $_SESSION["login"]=$_POST["login"];
+                $_SESSION["name"] = $userArray["nom"] ;
+                $_SESSION["statut"] = $userArray["statut"];
+                $_SESSION["departement"]=$userArray["departement"];
+                $_SESSION["role"] = $userArray["role"];
+                $connected="ok";
+            }
+        echo json_encode(["result"=>$connected]);
+    }
+    
+?>

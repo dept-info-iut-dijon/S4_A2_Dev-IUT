@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Logiciels IUT informatique</title>
     <meta charset="utf-8" />
-    <link href="css/styles.css" rel="stylesheet" />
-    <link href="css/index.css" rel="stylesheet" />
+    <link href="css/styles.min.css" rel="stylesheet" />
+    <link href="css/index.min.css" rel="stylesheet" />
 </head>
 <body>    
  
@@ -28,12 +28,13 @@
     </div>
   </div>
             
-    <div class="slides">                
-        <img src="img/iut1.jpg" alt="" class="active">
-        <img src="img/iut2.jpg" alt="">
-        <img src="img/iut3.jpeg" alt="">
-        <img src="img/iut4.jpg" alt="">
-    </div>                
+      <!-- ENV-08 : lazy loading sur les images non visibles au chargement -->
+  <div class="slides">                
+      <img src="img/iut1.jpg" alt="" class="active">
+      <img src="img/iut2.jpg" alt="" loading="lazy">
+      <img src="img/iut3.jpeg" alt="" loading="lazy">
+      <img src="img/iut4.jpg" alt="" loading="lazy">
+  </div>            
 
   </main>
     <!-- Nag screen -->
@@ -51,12 +52,12 @@
 
     <div w3-include-html="footer.html"></div>
 
-    <script src="js/utils.js"></script>
-    <script src="js/views/index.js"></script> 
+    <script src="js/utils.min.js"></script>
+    <script src="js/views/index.min.js"></script>
     <script src="js/lib/jquery.js"></script>
-    <script src="js/models/Utilisateur.js"></script>
-    <script src="js/sgbd/UtilisateurStorage.js"></script>
-    <script src="js/sgbd/UtilisateurDao.js"></script>    
-    <script src="js/sgbd/Login.js"></script>
-</body>
+    <script src="js/models/Utilisateur.min.js"></script>
+    <script src="js/sgbd/UtilisateurStorage.min.js"></script>
+    <script src="js/sgbd/UtilisateurDao.min.js"></script>
+    <script src="js/sgbd/Login.min.js"></script>
+    </body>
 </html>
