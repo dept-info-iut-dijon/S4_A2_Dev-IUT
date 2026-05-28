@@ -12,9 +12,9 @@ class Database
     public function __construct()
     {
         $host = "localhost";
-        $base = "your_db";
-        $user = "your_login";
-        $pass = "your_password";
+        $base = "softs";
+        $user = "root";
+        $pass = "";
         try{
             $this->pdo = new PDO("mysql:host=$host;dbname=$base",$user,$pass,
         [

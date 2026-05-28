@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -26,7 +27,7 @@ class IndexView {
     changeImage() {
         this.currentImage = (this.currentImage + 1) % 4;
         $(".slides img").removeClass("active");
-        $(".slides img").eq(this.currentImage).addClass("active"); 
+        $(".slides img").eq(this.currentImage).addClass("active");
         /*let element = $(".slides img")[this.currentImage];
         element.classList.add("active"); */
     }

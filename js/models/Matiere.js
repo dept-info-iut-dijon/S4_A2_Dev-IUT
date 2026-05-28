@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Représente une matière
  * */
