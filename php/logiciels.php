@@ -27,28 +27,23 @@ if (!isset($_SESSION["login"])) {
 }
 
 require_once("logiciels.dao.php");
-$bdd = new Database();
-$dao = new LogicielsDao($bdd);
+$database = new Database();
+$daoLogiciels = new LogicielsDao($database);
 
-$list = array();
-
-// Récupération des filtres d'affichage
-$portable  = isset($_GET["portable"]) ? filter_var($_GET["portable"], FILTER_VALIDATE_BOOLEAN) : false;
-$cacherObs = isset($_GET["obsolete"]) ? filter_var($_GET["obsolete"], FILTER_VALIDATE_BOOLEAN) : false;
+$liste = array();
+$portable = isset($_GET["portable"]) ? filter_var($_GET["portable"], FILTER_VALIDATE_BOOLEAN) : false;
+$cacherObsolete = isset($_GET["obsolete"]) ? filter_var($_GET["obsolete"], FILTER_VALIDATE_BOOLEAN) : false;
 
 try {
 if (isset($_GET["action"])) {
     if ($_GET["action"] === "update") {
-        // Mise à jour d'un logiciel existant
-        $dao->majLogiciel($_GET);
+        $daoLogiciels->mettreAJourLogiciel($_GET);
     }
     else if ($_GET["action"] === "insert") {
-        // Création d'un nouveau logiciel
-        $list["id"] = $dao->addLogiciel($_GET);
+        $liste["id"] = $daoLogiciels->ajouterLogiciel($_GET);
     }
     else if ($_GET["action"] === "delete") {
-        // Suppression d'un logiciel
-        $dao->delLogiciel($_GET);
+        $daoLogiciels->supprimerLogiciel($_GET);
     }
 }
 else if (isset($_GET["idmat"])) {
@@ -59,7 +54,7 @@ else if (isset($_GET["idmat"])) {
         echo json_encode(["error" => "Paramètre idmat invalide"]);
         exit;
     }
-    $list = $dao->listByMatiere($id, $portable, $cacherObs);
+    $liste = $daoLogiciels->listerParMatiere($id, $portable, $cacherObsolete);
 }
 else if (isset($_GET["idfil"])) {
     // Filtrage par filière — validation de l'entier
@@ -69,26 +64,23 @@ else if (isset($_GET["idfil"])) {
         echo json_encode(["error" => "Paramètre idfil invalide"]);
         exit;
     }
-    $list = $dao->listByFiliere($id, $portable, $cacherObs);
+    $liste = $daoLogiciels->listerParFiliere($id, $portable, $cacherObsolete);
 }
 else if (isset($_GET["nom"])) {
-    // Filtrage par nom — nettoyage de la chaîne
-    $nom  = strip_tags($_GET["nom"]);
-    $list = $dao->listByName($nom, $portable, $cacherObs);
+    $nom   = strip_tags($_GET["nom"]);
+    $liste = $daoLogiciels->listerParNom($nom, $portable, $cacherObsolete);
 }
 else if (isset($_GET["id"])) {
-    // Récupération par identifiant — validation de l'entier
     $id = filter_var($_GET["id"], FILTER_VALIDATE_INT);
     if ($id === false) {
         http_response_code(400);
         echo json_encode(["error" => "Paramètre id invalide"]);
         exit;
     }
-    $list = $dao->listById($id);
+    $liste = $daoLogiciels->listerParId($id);
 }
 else {
-    // Liste complète des logiciels
-    $list = $dao->listAll($portable, $cacherObs);
+    $liste = $daoLogiciels->listerTous($portable, $cacherObsolete);
 }
 } catch (Exception $e) {
     error_log('[logiciels] ' . $e->getMessage());
@@ -97,5 +89,4 @@ else {
     exit;
 }
 
-echo json_encode($list);
-?>
+echo json_encode($liste);

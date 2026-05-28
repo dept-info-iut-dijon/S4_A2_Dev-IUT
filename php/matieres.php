@@ -21,41 +21,34 @@ if (!isset($_SESSION["login"])) {
 }
 
 require_once("database.php");
-$bdd  = new Database();
-$list = array();
+$database = new Database();
+$liste    = array();
 
-try {
-    if (isset($_GET["action"])) {
-        if ($_GET["action"] === "delete") {
-            $id  = $_GET["idlog"];
-            $req = "DELETE FROM Logiciel_Matiere WHERE LogicielID=?";
-            $bdd->execute($req, array($id));
-        }
-        else if ($_GET["action"] === "insert") {
-            $idlog = $_GET["idlog"];
-            $idm   = $_GET["idm"];
-            $req   = "INSERT INTO Logiciel_Matiere(MatiereID, LogicielID) VALUES(?,?);";
-            $bdd->execute($req, [$idm, $idlog]);
-        }
+if (isset($_GET["action"])) {
+    if ($_GET["action"] === "delete") {
+        $idLogiciel = $_GET["idlog"];
+        $database->executer("DELETE FROM Logiciel_Matiere WHERE LogicielID=?", array($idLogiciel));
     }
-    else if (isset($_GET["idlog"])) {
-        $id   = $_GET["idlog"];
-        $list = $bdd->queryAll(
-            "SELECT id, code, nom FROM Matiere
-             JOIN Logiciel_Matiere ON MatiereID = id
-             WHERE Logiciel_Matiere.LogicielID=?;",
-            array($id)
+    else if ($_GET["action"] === "insert") {
+        $idLogiciel = $_GET["idlog"];
+        $idMatiere  = $_GET["idm"];
+        $database->executer(
+            "INSERT INTO Logiciel_Matiere(MatiereID, LogicielID) VALUES(?,?);",
+            [$idMatiere, $idLogiciel]
         );
     }
-    else {
-        $list = $bdd->queryAll("SELECT id, code, nom FROM Matiere;", array());
-    }
-} catch (Exception $e) {
-    error_log('[matieres] ' . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(["error" => "Erreur du serveur"]);
-    exit;
+}
+else if (isset($_GET["idlog"])) {
+    $id    = $_GET["idlog"];
+    $liste = $database->lireTous(
+        "SELECT id, code, nom FROM Matiere
+         JOIN Logiciel_Matiere ON MatiereID = id
+         WHERE Logiciel_Matiere.LogicielID=?;",
+        array($id)
+    );
+}
+else {
+    $liste = $database->lireTous("SELECT id, code, nom FROM Matiere;", array());
 }
 
-echo json_encode($list);
-?>
+echo json_encode($liste);

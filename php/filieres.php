@@ -19,41 +19,34 @@ if (!isset($_SESSION["login"])) {
 }
 
 require_once("database.php");
-$bdd  = new Database();
-$list = array();
+$database = new Database();
+$liste    = array();
 
-try {
-    if (isset($_GET["action"])) {
-        if ($_GET["action"] === "delete") {
-            $id  = $_GET["idlog"];
-            $req = "DELETE FROM Logiciel_Filiere WHERE LogicielID=?";
-            $bdd->execute($req, array($id));
-        }
-        else if ($_GET["action"] === "insert") {
-            $idlog = $_GET["idlog"];
-            $idf   = $_GET["idf"];
-            $req   = "INSERT INTO Logiciel_Filiere(FiliereID, LogicielID) VALUES(?,?);";
-            $bdd->execute($req, [$idf, $idlog]);
-        }
+if (isset($_GET["action"])) {
+    if ($_GET["action"] === "delete") {
+        $idLogiciel = $_GET["idlog"];
+        $database->executer("DELETE FROM Logiciel_Filiere WHERE LogicielID=?", array($idLogiciel));
     }
-    else if (isset($_GET["id"])) {
-        $id   = $_GET["id"];
-        $list = $bdd->queryAll(
-            "SELECT id, nom FROM Filiere
-             JOIN Logiciel_Filiere ON Logiciel_Filiere.FiliereID = Filiere.id
-             WHERE Logiciel_Filiere.LogicielID=?;",
-            array($id)
+    else if ($_GET["action"] === "insert") {
+        $idLogiciel = $_GET["idlog"];
+        $idFiliere  = $_GET["idf"];
+        $database->executer(
+            "INSERT INTO Logiciel_Filiere(FiliereID, LogicielID) VALUES(?,?);",
+            [$idFiliere, $idLogiciel]
         );
     }
-    else {
-        $list = $bdd->queryAll("SELECT id, nom FROM Filiere;", array());
-    }
-} catch (Exception $e) {
-    error_log('[filieres] ' . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(["error" => "Erreur du serveur"]);
-    exit;
+}
+else if (isset($_GET["id"])) {
+    $id    = $_GET["id"];
+    $liste = $database->lireTous(
+        "SELECT id, nom FROM Filiere
+         JOIN Logiciel_Filiere ON Logiciel_Filiere.FiliereID = Filiere.id
+         WHERE Logiciel_Filiere.LogicielID=?;",
+        array($id)
+    );
+}
+else {
+    $liste = $database->lireTous("SELECT id, nom FROM Filiere;", array());
 }
 
-echo json_encode($list);
-?>
+echo json_encode($liste);

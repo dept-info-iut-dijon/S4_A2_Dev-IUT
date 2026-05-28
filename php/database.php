@@ -3,15 +3,15 @@
  * Connexion à la base de données
  */
 
-function gestionErreur(Throwable $e) {
-    error_log('[erreur] ' . $e->getMessage());
+function gererErreur(Throwable $exception) {
+    error_log('[erreur] ' . $exception->getMessage());
     http_response_code(500);
     echo json_encode(['error' => 'Erreur interne du serveur']);
     exit;
 }
-set_exception_handler('gestionErreur');
+set_exception_handler('gererErreur');
 
-function chargerEnv($chemin) {
+function chargerEnvironnement($chemin) {
     if (!file_exists($chemin)) return;
     $lignes = file($chemin, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lignes as $ligne) {
@@ -23,7 +23,7 @@ function chargerEnv($chemin) {
     }
 }
 
-chargerEnv(__DIR__ . '/../.env');
+chargerEnvironnement(__DIR__ . '/../.env');
 
 class Database
 {
@@ -31,16 +31,16 @@ class Database
 
     public function __construct()
     {
-        $host = isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost';
+        $hote = isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost';
         $base = isset($_ENV['DB_NAME']) ? $_ENV['DB_NAME'] : 'softs';
-        $user = isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : 'root';
-        $pass = isset($_ENV['DB_PASS']) ? $_ENV['DB_PASS'] : '';
+        $utilisateur = isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : 'root';
+        $motDePasse = isset($_ENV['DB_PASS']) ? $_ENV['DB_PASS'] : '';
 
         try {
             $this->pdo = new PDO(
-                "mysql:host=$host;dbname=$base",
-                $user,
-                $pass,
+                "mysql:host=$hote;dbname=$base",
+                $utilisateur,
+                $motDePasse,
                 [
                     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
@@ -48,39 +48,38 @@ class Database
             );
             $this->pdo->exec("SET AUTOCOMMIT=1;");
         }
-        catch (PDOException $ex) {
-            // A7 : on logue l'erreur au lieu de l'ignorer
-            error_log('[database] Connexion échouée : ' . $ex->getMessage());
-            throw $ex;
+        catch (PDOException $exception) {
+            error_log('[database] Connexion échouée : ' . $exception->getMessage());
+            throw $exception;
         }
     }
 
     /**
      * Retourne une seule ligne résultat
      */
-    public function queryOne(string $req, array $params)
+    public function lireUn(string $requete, array $parametres)
     {
-        $r = $this->pdo->prepare($req);
-        $r->execute($params);
-        return $r->fetch(PDO::FETCH_ASSOC);
+        $declaration = $this->pdo->prepare($requete);
+        $declaration->execute($parametres);
+        return $declaration->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
      * Retourne toutes les lignes résultat
      */
-    public function queryAll(string $req, array $params)
+    public function lireTous(string $requete, array $parametres)
     {
-        $r = $this->pdo->prepare($req);
-        $r->execute($params);
-        return $r->fetchAll(PDO::FETCH_ASSOC);
+        $declaration = $this->pdo->prepare($requete);
+        $declaration->execute($parametres);
+        return $declaration->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
      * Exécute une requête sans retour (INSERT, UPDATE, DELETE)
      */
-    public function execute(string $req, array $params)
+    public function executer(string $requete, array $parametres)
     {
-        $r = $this->pdo->prepare($req);
-        $r->execute($params);
+        $declaration = $this->pdo->prepare($requete);
+        $declaration->execute($parametres);
     }
 }
