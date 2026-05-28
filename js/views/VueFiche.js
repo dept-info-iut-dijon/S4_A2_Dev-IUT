@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -29,7 +30,12 @@ class VueFiche {
         // liaison des events
         $("#add").on("click", () => { this.ajouterLog(); });
         $("#remove").on("click", () => { this.retirerLog(); });
-        $("#cancel").on("click", () => { window.history.back(); });
+        // erg 22   
+        $("#cancel").on("click", () => {
+            if (window.confirm("Les modifications non enregistrées seront perdues. Continuer ?")) {
+                window.history.back();
+            }
+        });
         $("#ok").on("click", () => { this.valider(); });
         $("#urlImage").on("input", () => { this.changeThumb(); });
         // récupère l'utilisateur connecté
@@ -145,11 +151,16 @@ class VueFiche {
     }
     valider() {
         return __awaiter(this, void 0, void 0, function* () {
-            // valide les modifications et ferme la fenêtre
+            // ERG-20 : validation avant envoi — nom et type obligatoires
+            let nom = $("#name").val().trim();
+            let type = $("#type").val().trim();
+            if (nom === "" || type === "") {
+                alert("Le nom et le type du logiciel sont obligatoires.");
+                return;
+            }
             let nouveau = false;
             try {
-                if (this.currentLog == null) // création, pas modification
-                 {
+                if (this.currentLog == null) {
                     this.currentLog = new Logiciel();
                     nouveau = true;
                     this.currentLog.utilisateur = this.currentUser;
