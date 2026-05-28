@@ -384,7 +384,9 @@ ALTER TABLE `filiere`
 --
 ALTER TABLE `logiciel`
   ADD PRIMARY KEY (`ID`),
-  ADD KEY `nom` (`nom`);
+  ADD KEY `nom` (`nom`),
+  ADD KEY `idx_obsolete` (`obsolete`),
+  ADD KEY `idx_visible` (`visible`);
 
 --
 -- Index pour la table `logiciel_filiere`

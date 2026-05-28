@@ -19,7 +19,8 @@ class Database
             $this->pdo = new PDO("mysql:host=$host;dbname=$base",$user,$pass,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_PERSISTENT => true
         ]);            
             
             $this->pdo->exec("SET AUTOCOMMIT=1;");
