@@ -15,11 +15,11 @@ class VueFiche
     private input_serie: HTMLInputElement;
 
     constructor() {
-        this.input_serie     = document.getElementById("serie") as HTMLInputElement;
-        this.currentLog      = null;
-        this.filieresDAO     = new FiliereDAO();
-        this.matieresDAO     = new MatiereDAO();
-        this.logicielsDAO    = new LogicielDAO();
+        this.input_serie = document.getElementById("serie") as HTMLInputElement;
+        this.currentLog = null;
+        this.filieresDAO = new FiliereDAO();
+        this.matieresDAO = new MatiereDAO();
+        this.logicielsDAO = new LogicielDAO();
         this.utilisateursDAO = new UtilisateurDao();
         this.uploader        = new FileUploader();
         this.vueModele       = new VueLogicielsVM(this.filieresDAO, this.matieresDAO, this.logicielsDAO);
@@ -28,7 +28,7 @@ class VueFiche
         this.listerMatieres();
 
         let query = window.location.search.substring(1);
-        let id    = parseInt(query.split("=")[1]);
+        let id = parseInt(query.split("=")[1]);
         if (id > 0)
             this.afficheLogiciel(id);
 
@@ -42,7 +42,7 @@ class VueFiche
         $("#ok").on("click", () => { this.valider(); });
         $("#urlImage").on("input", () => { this.changeThumb(); });
 
-        let storage     = new UtilisateurStorage();
+        let storage = new UtilisateurStorage();
         this.currentUser = storage.charge();
     }
 
@@ -53,11 +53,10 @@ class VueFiche
     private async afficheLogiciel(id: number) {
         this.currentLog = await this.logicielsDAO.getLogiciel(id);
 
-        ($("#name") as any).val(this.currentLog.nom);
-        ($("#type") as any).val(this.currentLog.type);
-        ($("#version") as any).val(this.currentLog.version);
-        ($("#desc") as any).val(this.currentLog.comment);
-
+        $("#name").val(this.currentLog.nom);
+        $("#type").val(this.currentLog.type);
+        $("#version").val(this.currentLog.version);
+        $("#desc").val(this.currentLog.comment);
         $("#setupName").text(this.currentLog.urlSetup);
         $("#tutoName").text(this.currentLog.urlTuto);
         $("#portName").text(this.currentLog.urlPort);
@@ -66,16 +65,17 @@ class VueFiche
 
         $("#years .year").prop("checked", false);
         let filieres = await this.filieresDAO.listeLog(this.currentLog);
-        $("#years .year label").each((index, element: Element) => {
-            const el = element as HTMLElement;
-            if (filieres.find((f) => f.nom == el.innerText) != undefined) {
-                (el.children.item(0) as HTMLInputElement).checked = true;
+
+        $("#years .year").each((index, element: HTMLElement) => {
+            let label = element.querySelector("label");
+            let cb = element.querySelector("input[type='checkbox']") as HTMLInputElement;
+            if (label && cb && filieres.find((val) => val.nom == label.innerText) != undefined) {
+                cb.checked = true;
             }
         });
 
         let matused = await this.matieresDAO.listLog(this.currentLog);
         this.putMatieres(matused, "#uses");
-
         this.input_serie.value = this.currentLog.numero_serie;
     }
 
@@ -84,12 +84,17 @@ class VueFiche
         filieres.forEach((filiere: Filiere) => {
             let div   = document.createElement("div");
             div.classList.add("year");
+
+            let cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.value = filiere.id.toString();
+            cb.id = "filiere_" + filiere.id;
+
             let label = document.createElement("label");
+            label.htmlFor = cb.id;
             label.innerHTML = filiere.nom;
-            let cb    = document.createElement("input");
-            cb.type   = "checkbox";
-            cb.value  = filiere.id.toString();
-            label.appendChild(cb);
+
+            div.appendChild(cb);
             div.appendChild(label);
             $(selector).append(div);
         });
@@ -105,7 +110,8 @@ class VueFiche
         this.putMatieres(matieres, "#courses");
     }
 
-    private putMatieres(matieres: Array<Matiere>, selector: string) {
+    private putMatieres(matieres: Array<Matiere>, selector: string)
+    {
         $(selector).html("");
         matieres.forEach((matiere: Matiere) => {
             let opt = document.createElement("option");
@@ -116,45 +122,50 @@ class VueFiche
         });
     }
 
-    private ajouterLog() {
+    private ajouterLog()
+    {
         let opt = $("#courses option:selected");
         $("#uses").append(opt);
     }
 
-    private retirerLog() {
+    private retirerLog()
+    {
         let opt = $("#uses option:selected");
         $("#courses").append(opt);
     }
 
     private urlDepuisInput(id: string): string {
         let input = document.getElementById(id) as HTMLInputElement;
-        if (input.files && input.files.length > 0)
-            return "files/" + input.files[0].name;
-        return "";
+        let files = input.files;
+        let file = "";
+        if (files.length > 0) {
+            let url = files[0].name;
+            file = "files/" + url;
+        }
+        return file;
     }
 
-    private lireChamps(log: Logiciel) {
-        log.comment      = ($("#desc") as any).val();
-        log.nom          = ($("#name") as any).val();
-        log.type         = ($("#type") as any).val();
-        log.version      = ($("#version") as any).val();
-        log.obsolete     = ($("#obsolete") as any).prop("checked");
+    private lireChamps(log: Logiciel)
+    {
+        log.comment = $("#desc").val();
+        log.nom = $("#name").val();
+        log.type = $("#type").val();
+        log.version = $("#version").val();
+        log.obsolete = $("#obsolete").prop("checked");
         log.numero_serie = this.input_serie.value;
 
-        let url = this.urlDepuisInput("urlTuto");  if (url) log.urlTuto  = url;
-            url = this.urlDepuisInput("urlSetup"); if (url) log.urlSetup = url;
-            url = this.urlDepuisInput("urlPort");  if (url) log.urlPort  = url;
-            url = this.urlDepuisInput("urlImage"); if (url) log.urlImage = url;
+        let url = this.getFileName("urlTuto");
+        if (url != "") log.urlTuto = url;
+        url = this.getFileName("urlSetup");
+        if (url != "") log.urlSetup = url;
+        url = this.getFileName("urlPort");
+        if (url != "") log.urlPort = url;
+        url = this.getFileName("urlImage");
+        if (url != "") log.urlImage = url;
     }
+
     private async valider()
     {
-        let nom = ($("#name").val() as string).trim();
-        let type = ($("#type").val() as string).trim();
-        if (nom === "" || type === "") {
-            alert("Le nom et le type du logiciel sont obligatoires.");
-            return;
-        }
-
         let nouveau = false;
         try {
             if (this.currentLog == null)
@@ -164,32 +175,75 @@ class VueFiche
                 this.currentLog.utilisateur = this.currentUser;
                 this.utilisateursDAO.ajouteUtilisateur(this.currentUser);
             }
+            {
+                $("#ok").addClass("hide");
+                $("#cancel").addClass("hide");
+                this.lireChamps(this.currentLog);
+                await this.logicielsDAO.majLogiciel(this.currentLog);
 
-            $("#ok").addClass("hide");
-            $("#cancel").addClass("hide");
+                let filieres = [];
+                $(".year input").each((index, element: HTMLInputElement) => {
+                    if (element.checked) {
+                        filieres.push(element.value);
+                    }
+                });
+                await this.filieresDAO.lierFilieres(this.currentLog, filieres);
 
-            this.lireChamps(this.currentLog);
-            await this.logicielsDAO.majLogiciel(this.currentLog);
+                let matieres = [];
+                $("#uses option").each((index, element: HTMLOptionElement) => {
+                    matieres.push(element.value);
+                });
+                await this.matieresDAO.lierMatieres(this.currentLog, matieres);
 
-            let filieres: number[] = [];
-            $(".year input").each((i, el: Element) => { const cb = el as HTMLInputElement; if (cb.checked) filieres.push(parseInt(cb.value)); });
-            await this.filieresDAO.lierFilieres(this.currentLog!, filieres);
+                await this.upload("setup");
+                await this.upload("tuto");
+                await this.upload("port");
+                await this.upload("image");
 
-            let matieres: number[] = [];
-            $("#uses option").each((i, el: Element) => { matieres.push(parseInt((el as HTMLOptionElement).value)); });
-            await this.matieresDAO.lierMatieres(this.currentLog!, matieres);
-
-            // SRP : l'upload est délégué à FileUploader
-            await this.uploader.upload("setup");
-            await this.uploader.upload("tuto");
-            await this.uploader.upload("port");
-            await this.uploader.upload("image");
-
-            alert(nouveau ? "Le logiciel a été soumis à l'administrateur." : "Modifications apportées au logiciel");
-            window.history.back();
+                if (nouveau)
+                    alert("Le logiciel a été soumis à l'administrateur.");
+                else
+                    alert("Modifications apportées au logiciel");
+                window.history.back();
+            }
         }
-        catch (x: unknown) {
-            alert(x instanceof Error ? x.message : String(x));
+        catch (x)
+        {
+            alert(x.message);
+        }
+    }
+
+    private async upload(id: string) {
+        let selectorFile = "#" + id + " input[type='file']";
+        let selectorRange = "#" + id + " input[type='range']";
+        let input = document.querySelector(selectorFile) as HTMLInputElement;
+        let files = input.files;
+        if (files.length > 0)
+        {
+            let formData = new FormData();
+            formData.append("file", files[0]);
+            $(selectorRange).removeClass("hide");
+            let data = await $.ajax({
+                xhr: () => {
+                    let xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", (evt) => {
+                        if (evt.lengthComputable)
+                        {
+                            let complete = (evt.loaded / evt.total) * 100;
+                            $(selectorRange).val(complete);
+                        }
+                    }, false);
+                    return xhr;
+                },
+                method: "post",
+                url: "php/upload.php",
+                data: formData,
+                contentType: false,
+                processData: false,
+                error: (obj, status, error) => { console.log(error); }
+            });
+            console.log(data);
+            $(selectorRange).addClass("hide");
         }
     }
 }

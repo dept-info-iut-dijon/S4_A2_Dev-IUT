@@ -16,14 +16,15 @@
     <main>
 
         <div class="content container-fluid">
-            <div class="row margin-small">  
-                <!-- ajout required -->              
-                <input type="text" class="full col" id="name" placeholder="saisir le nom du logiciel" required/>
-            </div>
             <div class="row margin-small">
-                <div class="col-md row align-items-center">    
-                    <!-- ajout required -->                
-                    <input type="text" class="full col" id="type" placeholder="saisir le type du logiciel" list="listtype" required >
+                <label for="name" class="col-12">Nom du logiciel</label>
+                <input type="text" class="full col" id="name" placeholder="saisir le nom du logiciel" />
+            </div>
+
+            <div class="row margin-small">
+                <div class="col-md row align-items-center">
+                    <label for="type" class="col-12">Type du logiciel</label>
+                    <input type="text" class="full col" id="type" placeholder="saisir le type du logiciel" list="listtype">
                     <datalist id="listtype">
                         <option>EDI</option>
                         <option>Compilateur</option>
@@ -35,13 +36,17 @@
                     </datalist>
 
                 </div>
-                <div class="col-md row align-items-center">                    
+                <div class="col-md row align-items-center">   
+                    <label for="version" class="col-12">Version du logiciel</label>
+
                     <input class="col full" type="text" id="version" placeholder="saisir la version du logiciel" />
                 </div>                
             </div>
             
             <div class="row margin-small align-items-center">
-                <div class="col-md row">                    
+                <div class="col-md row">          
+                    <label for="serie" class="col-12">Numéro de série</label>
+
                     <input id="serie" class="full col-md" placeholder="saisir le numéro de série" />
                 </div>
                 <div class="col-md row justify-content-center">
@@ -53,19 +58,11 @@
 
             <div class="row margin-small">
                 <div class="col-md " >
-                    <label for="years" class="centerContent">Filières utilisant ce logiciel :</label>
-                    <div id="years" class="col borders" >
-                        <!-- une checkbox par filière de la base (dynamiques) -->                        
-                        <div class="year">
-                            <label >BUT1 <input type="checkbox" checked value="1" /></label>
-                         </div>
-                        <div class="year">
-                            <label>BUT2 <input type="checkbox" value="2"/></label>
+                    <fieldset class="col">
+                        <legend class="centerContent">Filières utilisant ce logiciel :</legend>
+                        <div id="years">
                         </div>
-                        <div class="year">
-                            <label>BUT3 <input type="checkbox" value="3"/></label>
-                        </div>                        
-                    </div>
+                    </fieldset>
                 </div>
                 <div class="col-md">                    
                     <label for="courses" class="centerContent">Matières :</label>
@@ -85,7 +82,6 @@
                     <label for="uses" class="centerContent">Utilisant ce logiciel :</label>
                     <select id="uses" class="col listitem borders" size="6">
                         <!-- liste avec les matières utilisées -->
-                       <!-- <option class="course" value="4">Gestion données</option> -->
                     </select>
                 </div>                
             </div>

@@ -10,8 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 /**
  * Vue pour la fiche d'édition d'un logiciel.
- * SRP : cette classe gère l'affichage et les interactions du formulaire.
- * L'upload est délégué à FileUploader.
  */
 class VueFiche {
     constructor() {
@@ -38,7 +36,6 @@ class VueFiche {
         });
         $("#ok").on("click", () => { this.valider(); });
         $("#urlImage").on("input", () => { this.changeThumb(); });
-        // récupère l'utilisateur connecté
         let storage = new UtilisateurStorage();
         this.currentUser = storage.charge();
     }
@@ -59,29 +56,35 @@ class VueFiche {
             $("#obsolete").prop("checked", this.currentLog.obsolete);
             $("#years .year").prop("checked", false);
             let filieres = yield this.filieresDAO.listeLog(this.currentLog);
-            $("#years .year label").each((index, element) => {
-                const el = element;
-                if (filieres.find((f) => f.nom == el.innerText) != undefined) {
-                    el.children.item(0).checked = true;
-                }
-            });
+            $("#years .year").each((index, element) => {
+            let label = element.querySelector("label");
+            let cb = element.querySelector("input[type='checkbox']");
+            if (label && cb && filieres.find((val) => val.nom == label.innerText) != undefined) {
+                cb.checked = true;
+            }
+        });
             let matused = yield this.matieresDAO.listLog(this.currentLog);
             this.putMatieres(matused, "#uses");
             this.input_serie.value = this.currentLog.numero_serie;
         });
     }
-    putFilieres(filieres, selector) {
+        putFilieres(filieres, selector) {
         $(selector).html("");
         filieres.forEach((filiere) => {
             let div = document.createElement("div");
             div.classList.add("year");
-            let label = document.createElement("label");
-            label.innerHTML = filiere.nom;
+
             let cb = document.createElement("input");
             cb.type = "checkbox";
             cb.value = filiere.id.toString();
-            label.appendChild(cb);
-            div.appendChild(label);
+            cb.id = "filiere_" + filiere.id;
+
+            let label = document.createElement("label");
+            label.htmlFor = cb.id;    
+            label.innerHTML = filiere.nom;
+
+            div.appendChild(cb);        
+            div.appendChild(label);     
             $(selector).append(div);
         });
     }

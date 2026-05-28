@@ -15,10 +15,13 @@
     <main>
         <div class="side">
             <h2>Liste des logiciels</h2>
-            <div class="item">
-                <input type="radio" name="filter" value="all" id="all" />
-                 <label for="all">Tout</label>
-            </div>
+             <!-- E2 : fieldset+legend pour grouper les boutons radio de filtre -->
+            <fieldset>
+                <legend>Filtrer les logiciels</legend>
+                <div class="item">
+                    <input type="radio" name="filter" value="all" id="all" />
+                    <label for="all">Tout</label>
+                </div>
             <div class="item">
                 <input type="radio" name="filter" value="year" id="year" />
                  <label for="year">Filtrer par filière</label>
@@ -36,18 +39,23 @@
                  <label for="name">Filtrer par nom</label>
                 <input type="text" id="filtrer" disabled />
             </div>
-            <div class="item">
-                <input type="checkbox" name="filtre_portable" id="fport" />
-                <label for="fport">Ne conserver que les logiciels portables</label>
-            </div>
-            <div class="item">
-                <input type="checkbox" name="filtre_obsolete" id="fobsolete" checked />
-                <label for="fobsolete">Cacher les logiciels obsolètes</label>
-            </div>
-            <div class="item admin">
-                <input type="checkbox" name="recents" id="cb_recent" />
-                <label for="cb_recent">Ne conserver que les nouveaux logiciels</label>
-            </div>
+            </fieldset>
+             <!-- E2 : fieldset+legend pour grouper les checkboxes d'affichage -->
+            <fieldset>
+                <legend>Options d'affichage</legend>
+                <div class="item">
+                    <input type="checkbox" name="filtre_portable" id="fport" />
+                    <label for="fport">Ne conserver que les logiciels portables</label>
+                </div>
+                <div class="item">
+                    <input type="checkbox" name="filtre_obsolete" id="fobsolete" checked />
+                    <label for="fobsolete">Cacher les logiciels obsolètes</label>
+                </div>
+                <div class="item admin">
+                    <input type="checkbox" name="recents" id="cb_recent" />
+                    <label for="cb_recent">Ne conserver que les nouveaux logiciels</label>
+                </div>
+            </fieldset>
             
             <div class="list">
             </div>
