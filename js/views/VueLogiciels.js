@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,6 +13,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
  * */
 class VueLogiciels {
     constructor() {
+        this.currentPage = 1;
+        this.LIMITE = 20;
         this.portOnly = document.getElementById("fport");
         this.portOnly.oninput = this.filtrer.bind(this);
         this.cacherObsolete = document.getElementById("fobsolete");
@@ -65,12 +68,14 @@ class VueLogiciels {
     }
     choisirTout() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.currentPage = 1;
             this.griseTout();
             yield this.filtrer();
         });
     }
     choisirFilieres() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.currentPage = 1;
             this.griseTout();
             this.listeFilieres.disabled = false;
             yield this.filtrer();
@@ -78,6 +83,7 @@ class VueLogiciels {
     }
     choisirMatieres() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.currentPage = 1;
             this.griseTout();
             this.listeMatieres.disabled = false;
             yield this.filtrer();
@@ -85,6 +91,7 @@ class VueLogiciels {
     }
     choisirNom() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.currentPage = 1;
             this.griseTout();
             this.filtreTexteNom.disabled = false;
             yield this.filtrer();
@@ -159,9 +166,47 @@ class VueLogiciels {
     }
     listerTousLogiciels() {
         return __awaiter(this, arguments, void 0, function* (portableOnly = false, cacherObsolete = false) {
-            let logs = yield this.vueModele.listeTousLogiciels(portableOnly, cacherObsolete);
-            this.listerLogiciels(logs);
+            let result = yield this.vueModele.listeTousLogicielsPagine(portableOnly, cacherObsolete, this.currentPage, this.LIMITE);
+            this.listerLogiciels(result.logiciels);
+            this.afficherPagination(result.total, result.page, result.limite);
         });
+    }
+    afficherPagination(total, page, limite) {
+        let nbPages = Math.ceil(total / limite);
+        let nav = document.getElementById("pagination");
+        if (!nav) {
+            nav = document.createElement("div");
+            nav.id = "pagination";
+            nav.style.textAlign = "center";
+            nav.style.marginTop = "10px";
+            $("main .list").after(nav);
+        }
+        nav.innerHTML = "";
+        // Bouton Précédent
+        if (page > 1) {
+            let btnPrev = document.createElement("button");
+            btnPrev.innerHTML = "◀";
+            btnPrev.onclick = () => {
+                this.currentPage--;
+                this.filtrer();
+            };
+            nav.appendChild(btnPrev);
+        }
+        // Info page
+        let info = document.createElement("span");
+        info.innerHTML = ` Page ${page} / ${nbPages} (${total} logiciels) `;
+        info.style.margin = "0 8px";
+        nav.appendChild(info);
+        // Bouton Suivant
+        if (page < nbPages) {
+            let btnNext = document.createElement("button");
+            btnNext.innerHTML = "▶";
+            btnNext.onclick = () => {
+                this.currentPage++;
+                this.filtrer();
+            };
+            nav.appendChild(btnNext);
+        }
     }
     effaceLogiciel() {
         let div = document.getElementById("software");
@@ -256,18 +301,21 @@ class VueLogiciels {
             }
             else if ($("#year").prop("checked")) {
                 let id = $("#years option:selected").val();
-                let logs = yield this.vueModele.listeLogicielsFiliere(id, this.portOnly.checked, this.cacherObsolete.checked);
-                this.listerLogiciels(logs);
+                let result = yield this.vueModele.listeLogicielsFilierePagine(id, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
+                this.listerLogiciels(result.logiciels);
+                this.afficherPagination(result.total, result.page, result.limite);
             }
             else if ($("#course").prop("checked")) {
                 let id = $("#courses option:selected").val();
-                let logs = yield this.vueModele.listeLogicielsMatiere(id, this.portOnly.checked, this.cacherObsolete.checked);
-                this.listerLogiciels(logs);
+                let result = yield this.vueModele.listeLogicielsMatierePagine(id, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
+                this.listerLogiciels(result.logiciels);
+                this.afficherPagination(result.total, result.page, result.limite);
             }
             else if ($("#name").prop("checked")) {
                 let name = $("#filtrer").val();
-                let logs = yield this.vueModele.listeLogicielsNom(name, this.portOnly.checked, this.cacherObsolete.checked);
-                this.listerLogiciels(logs);
+                let result = yield this.vueModele.listeLogicielsNomPagine(name, this.portOnly.checked, this.cacherObsolete.checked, this.currentPage, this.LIMITE);
+                this.listerLogiciels(result.logiciels);
+                this.afficherPagination(result.total, result.page, result.limite);
             }
         });
     }

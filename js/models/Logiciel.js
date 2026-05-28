@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Représente un logiciel
  * */

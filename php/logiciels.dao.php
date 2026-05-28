@@ -21,9 +21,42 @@ class LogicielsDao
         return $data;
     }
 
+    /**
+     * Colonnes complètes pour vue détail 
+     */
     private function selectBase()
     {
-        $req = "SELECT Logiciel.ID as id, Logiciel.nom as nom, Logiciel.version as version, Logiciel.urlsetup as urlSetup, Logiciel.urltuto as urlTuto, Logiciel.comment as comment, Logiciel.type as type, Logiciel.visible as visible, Logiciel.urlport as urlPort, Logiciel.urlImage as urlImage, Logiciel.obsolete as obsolete, Logiciel.Utilisateurlogin as utilisateur, Logiciel.date_ajout as date_ajout, Logiciel.numero_serie as numero_serie FROM Logiciel ";
+        $req = "SELECT Logiciel.ID as id, Logiciel.nom as nom,
+        Logiciel.version as version, Logiciel.urlsetup as urlSetup,
+        Logiciel.urltuto as urlTuto, Logiciel.comment as comment,
+        Logiciel.type as type, Logiciel.visible as visible,
+        Logiciel.urlport as urlPort, Logiciel.urlImage as urlImage,
+        Logiciel.obsolete as obsolete, Logiciel.Utilisateurlogin as utilisateur,
+        Logiciel.date_ajout as date_ajout, Logiciel.numero_serie as numero_serie,
+        Utilisateur.nom as utilisateurNom,
+        Utilisateur.statut as utilisateurStatut,
+        Utilisateur.departement as utilisateurDepartement
+        FROM Logiciel
+        LEFT JOIN Utilisateur ON Utilisateur.login = Logiciel.Utilisateurlogin ";
+        return $req;
+    }
+
+    /**
+     * Colonnes réduites pour vue liste (urlPort, urlImage, numero_serie en moins)
+     */
+    private function selectBaseListe()
+    {
+        $req = "SELECT Logiciel.ID as id, Logiciel.nom as nom,
+        Logiciel.version as version, Logiciel.urlsetup as urlSetup,
+        Logiciel.urltuto as urlTuto, Logiciel.comment as comment,
+        Logiciel.type as type, Logiciel.visible as visible,
+        Logiciel.obsolete as obsolete, Logiciel.Utilisateurlogin as utilisateur,
+        Logiciel.date_ajout as date_ajout,
+        Utilisateur.nom as utilisateurNom,
+        Utilisateur.statut as utilisateurStatut,
+        Utilisateur.departement as utilisateurDepartement
+        FROM Logiciel
+        LEFT JOIN Utilisateur ON Utilisateur.login = Logiciel.Utilisateurlogin ";
         return $req;
     }
 
@@ -44,7 +77,7 @@ class LogicielsDao
      */
     public function listAll($portable, $cacherObs)
     {
-        $req = $this->selectBase()."WHERE 1=1 ";
+        $req = $this->selectBaseListe()."WHERE 1=1 ";
         if($portable)
         {
             $req = $req."AND  ".$this->FiltrePortable();
@@ -66,7 +99,7 @@ class LogicielsDao
      */
     public function listByFiliere($id, $portable, $cacherObsolete)
     {
-        $req = $this->selectBase()."JOIN Logiciel_Filiere ON Logiciel_Filiere.LogicielID=Logiciel.ID WHERE Logiciel_Filiere.FiliereID=? ";
+        $req = $this->selectBaseListe()."JOIN Logiciel_Filiere ON Logiciel_Filiere.LogicielID=Logiciel.ID WHERE Logiciel_Filiere.FiliereID=? ";
         if($portable)
         {
             $req = $req." AND ".$this->FiltrePortable();
@@ -88,7 +121,7 @@ class LogicielsDao
      */
     public function listByMatiere($id, $portable, $cacherObsolete)
     {
-        $req = $this->selectBase()."JOIN Logiciel_Matiere ON Logiciel_Matiere.LogicielID=Logiciel.ID WHERE Logiciel_Matiere.MatiereID=? ";
+        $req = $this->selectBaseListe()."JOIN Logiciel_Matiere ON Logiciel_Matiere.LogicielID=Logiciel.ID WHERE Logiciel_Matiere.MatiereID=? ";
         if($portable)
             $req = $req." AND ".$this->FiltrePortable();
         if($cacherObsolete)
@@ -106,7 +139,7 @@ class LogicielsDao
      */
     public function listByName($nom, $portable, $cacherObsolete)
     {
-        $req = $this->selectBase()."WHERE Logiciel.nom LIKE ? ";
+        $req = $this->selectBaseListe()."WHERE Logiciel.nom LIKE ? ";
         if($portable)
             $req = $req." AND ".$this->FiltrePortable();
         if($cacherObsolete)
@@ -152,6 +185,50 @@ class LogicielsDao
         $req = "INSERT INTO Logiciel(id,nom,version, urlSetup, urlTuto, urlPort,comment,type,visible, urlImage, obsolete, Utilisateurlogin, numero_serie) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?);";
         $this->bdd->execute($req,[$val["id"],$log["nom"],$log["version"],$log["urlSetup"],$log["urlTuto"],$log["urlPort"],$log["comment"],$log["type"],0,$log["urlImage"], $log["obsolete"],$log["user"],$log["numero_serie"]]);
         return $val;
+    }
+
+    private function pagineResult(string $countReq, array $countParams, string $dataReq, array $dataParams, int $page, int $limite): array
+    {
+        $total = intval($this->bdd->queryOne($countReq, $countParams)["total"]);
+        $offset = ($page - 1) * $limite;
+        $logiciels = $this->bdd->queryAll($dataReq . " ORDER BY Logiciel.nom LIMIT " . intval($limite) . " OFFSET " . intval($offset) . ";", $dataParams);
+        return array("logiciels" => $logiciels, "total" => $total, "page" => $page, "limite" => $limite);
+    }
+
+    public function listAllPagine($portable, $cacherObs, $page, $limite)
+    {
+        $where = "WHERE 1=1 ";
+        if ($portable) $where .= "AND " . $this->FiltrePortable() . " ";
+        if ($cacherObs) $where .= "AND " . $this->FiltreObsolete() . " ";
+        $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $where;
+        return $this->pagineResult($countReq, array(), $this->selectBaseListe() . $where, array(), $page, $limite);
+    }
+
+    public function listByFilierePagine($id, $portable, $cacherObs, $page, $limite)
+    {
+        $join = "JOIN Logiciel_Filiere ON Logiciel_Filiere.LogicielID=Logiciel.ID WHERE Logiciel_Filiere.FiliereID=? ";
+        if ($portable) $join .= "AND " . $this->FiltrePortable() . " ";
+        if ($cacherObs) $join .= "AND " . $this->FiltreObsolete() . " ";
+        $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $join;
+        return $this->pagineResult($countReq, array($id), $this->selectBaseListe() . $join, array($id), $page, $limite);
+    }
+
+    public function listByMatierePagine($id, $portable, $cacherObs, $page, $limite)
+    {
+        $join = "JOIN Logiciel_Matiere ON Logiciel_Matiere.LogicielID=Logiciel.ID WHERE Logiciel_Matiere.MatiereID=? ";
+        if ($portable) $join .= "AND " . $this->FiltrePortable() . " ";
+        if ($cacherObs) $join .= "AND " . $this->FiltreObsolete() . " ";
+        $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $join;
+        return $this->pagineResult($countReq, array($id), $this->selectBaseListe() . $join, array($id), $page, $limite);
+    }
+
+    public function listByNamePagine($nom, $portable, $cacherObs, $page, $limite)
+    {
+        $where = "WHERE Logiciel.nom LIKE ? ";
+        if ($portable) $where .= "AND " . $this->FiltrePortable() . " ";
+        if ($cacherObs) $where .= "AND " . $this->FiltreObsolete() . " ";
+        $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $where;
+        return $this->pagineResult($countReq, array("%$nom%"), $this->selectBaseListe() . $where, array("%$nom%"), $page, $limite);
     }
 
     /**

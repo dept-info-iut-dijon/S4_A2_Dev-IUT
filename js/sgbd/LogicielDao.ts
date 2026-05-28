@@ -44,11 +44,16 @@ class LogicielDAO
             logiciel.obsolete = obj.obsolete == 1;
             logiciel.date_ajout = new Date(obj.date_ajout);
             logiciel.numero_serie = obj.numero_serie;
-            let user = await this.userDao.LireUtilisateur(obj.utilisateur);
+
+            let user = new Utilisateur();
+            user.login = obj.utilisateur;
+            user.nom = obj.utilisateurNom;
+            user.statut = obj.utilisateurStatut;
+            user.departement = obj.utilisateurDepartement;
             logiciel.utilisateur = user;
+
             list.push(logiciel);
         }
-
         return list;
     }
     /**
@@ -166,6 +171,45 @@ class LogicielDAO
         return list;
     }
 
+    public async listFilierePagine(idfiliere: number, portable: boolean, obsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        let data = await $.ajax({
+            method: "get",
+            dataType: "json",
+            data: { "idfil": idfiliere, "portable": portable, "obsolete": obsolete, "page": page, "limite": limite },
+            url: "php/logiciels.php",
+            error: (obj, status, error) => { console.log(error); }
+        });
+        let logiciels = await this.getData(data.logiciels);
+        return { logiciels, total: data.total, page: data.page, limite: data.limite };
+    }
+
+    public async listMatierePagine(idmatiere: number, portable: boolean, cacherObsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        let data = await $.ajax({
+            method: "get",
+            dataType: "json",
+            data: { "idmat": idmatiere, "portable": portable, "obsolete": cacherObsolete, "page": page, "limite": limite },
+            url: "php/logiciels.php",
+            error: (obj, status, error) => { console.log(error); }
+        });
+        let logiciels = await this.getData(data.logiciels);
+        return { logiciels, total: data.total, page: data.page, limite: data.limite };
+    }
+
+    public async listNomPagine(name: string, portable: boolean, cacherObsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        let data = await $.ajax({
+            method: "get",
+            dataType: "json",
+            data: { "nom": name, "portable": portable, "obsolete": cacherObsolete, "page": page, "limite": limite },
+            url: "php/logiciels.php",
+            error: (obj, status, error) => { console.log(error); }
+        });
+        let logiciels = await this.getData(data.logiciels);
+        return { logiciels, total: data.total, page: data.page, limite: data.limite };
+    }
+
     /**
      * Met à jour le logiciel depuis le SGBD
      * @param log le logiciel à mettre à jour
@@ -199,5 +243,31 @@ class LogicielDAO
         {
             log.id = parseInt(retour["id"].AUTO_INCREMENT, 10);            
         }
+    }
+
+    /**
+     * Liste les logiciels avec pagination
+     * @param portableOnly indique si l'on ne souhaite que les portables
+     * @param cacherObsolete pour indiquer si on cache les logiciels obsolètes ou non
+     * @param page numéro de page (commence à 1)
+     * @param limite nombre de résultats par page
+     * @returns les logiciels de la page + le total
+     */
+    public async listAllPagine(portableOnly: boolean, cacherObsolete: boolean, page: number, limite: number): Promise<{logiciels: Logiciel[], total: number, page: number, limite: number}>
+    {
+        let data = await $.ajax({
+            method: "get",
+            data: {
+                "portable": portableOnly,
+                "obsolete": cacherObsolete,
+                "page": page,
+                "limite": limite
+            },
+            dataType: "json",
+            url: "php/logiciels.php",
+            error: (obj, status, error) => { console.log(error); }
+        });
+        let logiciels = await this.getData(data.logiciels);
+        return { logiciels, total: data.total, page: data.page, limite: data.limite };
     }
 }

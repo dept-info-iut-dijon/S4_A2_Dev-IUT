@@ -12,14 +12,15 @@ class Database
     public function __construct()
     {
         $host = "localhost";
-        $base = "softs";
-        $user = "softs_app";
-        $pass = "1Mot_De_Passe_Fort*";
+        $base = "opti";
+        $user = "root";
+        $pass = "";
         try{
             $this->pdo = new PDO("mysql:host=$host;dbname=$base",$user,$pass,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_PERSISTENT => true
         ]);            
             
             $this->pdo->exec("SET AUTOCOMMIT=1;");

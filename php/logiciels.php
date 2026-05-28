@@ -37,18 +37,35 @@ if(isset($_GET["action"]))
 else if(isset($_GET["idmat"]))
 {
     $id = $_GET["idmat"];
-    $list = $dao->listByMatiere($id, $portable, $cacherObs);
+    if(isset($_GET["page"])) {
+        $page = intval($_GET["page"]);
+        $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+        $list = $dao->listByMatierePagine($id, $portable, $cacherObs, $page, $limite);
+    } else {
+        $list = $dao->listByMatiere($id, $portable, $cacherObs);
+    }
 }
 else if(isset($_GET["idfil"]))
 {
     $id = $_GET["idfil"];
-    $list = $dao->listByFiliere($id, $portable, $cacherObs);
-
+    if(isset($_GET["page"])) {
+        $page = intval($_GET["page"]);
+        $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+        $list = $dao->listByFilierePagine($id, $portable, $cacherObs, $page, $limite);
+    } else {
+        $list = $dao->listByFiliere($id, $portable, $cacherObs);
+    }
 }
 else if(isset($_GET["nom"]))
 {
     $nom = $_GET["nom"];
-    $list = $dao->listByName($nom, $portable, $cacherObs);
+    if(isset($_GET["page"])) {
+        $page = intval($_GET["page"]);
+        $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+        $list = $dao->listByNamePagine($nom, $portable, $cacherObs, $page, $limite);
+    } else {
+        $list = $dao->listByName($nom, $portable, $cacherObs);
+    }
 }
 else if(isset($_GET["id"]))
 {
@@ -58,7 +75,16 @@ else if(isset($_GET["id"]))
 
 else
 {
-    $list = $dao->listAll($portable, $cacherObs);
+    if(isset($_GET["page"]))
+    {
+        $page = intval($_GET["page"]);
+        $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+        $list = $dao->listAllPagine($portable, $cacherObs, $page, $limite);
+    }
+    else
+    {
+        $list = $dao->listAll($portable, $cacherObs);
+    }
 }
 echo json_encode($list);
 ?>
