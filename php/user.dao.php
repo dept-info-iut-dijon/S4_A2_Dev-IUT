@@ -1,20 +1,7 @@
 <?php
 require_once("database.php");
 require_once("constants.php");
-
-// SRP : le hashage est isolé ici, séparé du DAO
-class PasswordService
-{
-    public function hasher(string $motDePasse): string
-    {
-        return password_hash($motDePasse, PASSWORD_BCRYPT);
-    }
-
-    public function verifier(string $motDePasse, string $empreinte): bool
-    {
-        return password_verify($motDePasse, $empreinte);
-    }
-}
+require_once("passeword.service.php");
 
 class UserDao
 {
