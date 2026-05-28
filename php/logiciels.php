@@ -1,5 +1,9 @@
 <?php
 
+require_once("auth.php");
+
+session_start();
+
 require_once("logiciels.dao.php");
 $bdd = new Database();
 $dao = new LogicielsDao($bdd);
@@ -17,8 +21,8 @@ else
 
 if(isset($_GET["action"]))
 {
-    if($_GET["action"]=="update")
-    {
+    require_admin();
+    if ($_GET["action"] == "update") {
         $dao->majLogiciel($_GET);
     }
     else if($_GET["action"]=="insert")

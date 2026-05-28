@@ -1,0 +1,5 @@
+# Bloquer l'accès direct aux fichiers internes (non destinés à être des endpoints)
+<FilesMatch "^(database|auth|user\.dao|logiciels\.dao)\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
