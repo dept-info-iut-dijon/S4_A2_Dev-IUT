@@ -1,10 +1,15 @@
 <?php
+require_once("auth.php");
+session_start();
+require_login();
+
 /* liste les matières */
 require_once("database.php");
 $bdd = new Database();
 $list = array();
 if(isset($_GET["action"]))
 {
+    require_admin();
     if($_GET["action"]=="delete")
     {
         $id = $_GET["idlog"];
