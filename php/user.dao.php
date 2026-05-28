@@ -6,11 +6,20 @@ class UserDao
 {
     private Database $database;
 
+    /**
+     * Initialise l'objet
+     * @param Database $bdd la base de données liée
+     */
     public function __construct(Database $database)
     {
         $this->database = $database;
     }
 
+     /**
+     * Read a user
+     * @param string $login the login
+     * @return mixed user on array
+     */
     public function lireUtilisateur($login)
     {
         $requete = "SELECT * FROM Utilisateur WHERE login=?";

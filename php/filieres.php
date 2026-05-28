@@ -11,6 +11,10 @@
  * - id : retourne les filières associées à un logiciel donné
  * - (aucun) : retourne la liste complète des filières
  */
+require_once("database.php");
+require_once("auth.php");
+
+
 session_start();
 if (!isset($_SESSION["login"])) {
     http_response_code(401);
@@ -18,14 +22,23 @@ if (!isset($_SESSION["login"])) {
     exit;
 }
 
-require_once("database.php");
 $database = new Database();
 $liste    = array();
 
-if (isset($_GET["action"])) {
-    if ($_GET["action"] === "delete") {
-        $idLogiciel = $_GET["idlog"];
-        $database->executer("DELETE FROM Logiciel_Filiere WHERE LogicielID=?", array($idLogiciel));
+require_login();
+
+/* liste les filières */
+require_once("database.php");
+$bdd = new Database();
+$list = array();
+if(isset($_GET["action"]))
+{
+    require_admin();
+    if($_GET["action"]=="delete")
+    {
+        $id = $_GET["idlog"];
+        $req = "DELETE FROM Logiciel_Filiere WHERE LogicielID=?";
+        $bdd->execute($req,array($id));
     }
     else if ($_GET["action"] === "insert") {
         $idLogiciel = $_GET["idlog"];
@@ -50,3 +63,4 @@ else {
 }
 
 echo json_encode($liste);
+?>

@@ -1,33 +1,19 @@
 <?php
-/**
- * Point d'entrée API pour la gestion des matières.
- * Gère les opérations de lecture, insertion et suppression
- * des associations entre logiciels et matières.
- * Nécessite une session active (utilisateur connecté).
- *
- * Paramètres GET acceptés :
- * - action=delete & idlog : supprime toutes les matières liées à un logiciel
- * - action=insert & idlog & idm : associe une matière à un logiciel
- * - idlog : retourne les matières associées à un logiciel donné
- * - (aucun) : retourne la liste complète des matières
- */
-
-// Vérification que l'utilisateur est connecté
+require_once("auth.php");
 session_start();
-if (!isset($_SESSION["login"])) {
-    http_response_code(401);
-    echo json_encode(["error" => "Non authentifié"]);
-    exit;
-}
 
-require_once("database.php");
-$database = new Database();
-$liste    = array();
+/* liste les matières */
+$bdd = new Database();
+$list = array();
+if(isset($_GET["action"]))
+{
+    require_admin();
+    if($_GET["action"]=="delete")
+    {
+        $id = $_GET["idlog"];
+        $req = "DELETE FROM Logiciel_Matiere WHERE LogicielID=?";
+        $bdd->execute($req,array($id));
 
-if (isset($_GET["action"])) {
-    if ($_GET["action"] === "delete") {
-        $idLogiciel = $_GET["idlog"];
-        $database->executer("DELETE FROM Logiciel_Matiere WHERE LogicielID=?", array($idLogiciel));
     }
     else if ($_GET["action"] === "insert") {
         $idLogiciel = $_GET["idlog"];

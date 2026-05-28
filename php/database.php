@@ -35,17 +35,15 @@ class Database
         $base = isset($_ENV['DB_NAME']) ? $_ENV['DB_NAME'] : 'softs';
         $utilisateur = isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : 'root';
         $motDePasse = isset($_ENV['DB_PASS']) ? $_ENV['DB_PASS'] : '';
-
-        try {
-            $this->pdo = new PDO(
-                "mysql:host=$hote;dbname=$base",
-                $utilisateur,
-                $motDePasse,
-                [
-                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-                ]
-            );
+      
+        try{
+            $this->pdo = new PDO("mysql:host=$host;dbname=$base",$user,$pass,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_PERSISTENT => true
+        ]);            
+            
             $this->pdo->exec("SET AUTOCOMMIT=1;");
         }
         catch (PDOException $exception) {

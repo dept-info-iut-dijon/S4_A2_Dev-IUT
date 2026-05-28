@@ -1,4 +1,8 @@
 <?php
+require_once("logiciels.dao.php");
+require_once("auth.php");
+require_once("logiciels.dao.php");
+
 /**
  * Point d'entrée API pour la gestion des logiciels.
  * Gère les opérations CRUD sur les logiciels ainsi que
@@ -26,7 +30,8 @@ if (!isset($_SESSION["login"])) {
     exit;
 }
 
-require_once("logiciels.dao.php");
+
+
 $database = new Database();
 $daoLogiciels = new LogicielsDao($database);
 
@@ -37,6 +42,7 @@ $cacherObsolete = isset($_GET["obsolete"]) ? filter_var($_GET["obsolete"], FILTE
 try {
 if (isset($_GET["action"])) {
     if ($_GET["action"] === "update") {
+          require_admin();
         $daoLogiciels->mettreAJourLogiciel($_GET);
     }
     else if ($_GET["action"] === "insert") {
@@ -69,6 +75,16 @@ else if (isset($_GET["idfil"])) {
 else if (isset($_GET["nom"])) {
     $nom   = strip_tags($_GET["nom"]);
     $liste = $daoLogiciels->listerParNom($nom, $portable, $cacherObsolete);
+else if(isset($_GET["nom"]))
+{
+    $nom = $_GET["nom"];
+    if(isset($_GET["page"])) {
+        $page = intval($_GET["page"]);
+        $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+        $list = $dao->listByNamePagine($nom, $portable, $cacherObs, $page, $limite);
+    } else {
+        $list = $dao->listByName($nom, $portable, $cacherObs);
+    }
 }
 else if (isset($_GET["id"])) {
     $id = filter_var($_GET["id"], FILTER_VALIDATE_INT);
@@ -79,8 +95,19 @@ else if (isset($_GET["id"])) {
     }
     $liste = $daoLogiciels->listerParId($id);
 }
-else {
-    $liste = $daoLogiciels->listerTous($portable, $cacherObsolete);
+
+else
+{
+    if(isset($_GET["page"]))
+    {
+        $page = intval($_GET["page"]);
+        $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+        $list = $dao->listAllPagine($portable, $cacherObs, $page, $limite);
+    }
+    else
+    {
+        $list = $dao->listerTous($portable, $cacherObs);
+    }
 }
 } catch (Exception $e) {
     error_log('[logiciels] ' . $e->getMessage());
