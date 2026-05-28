@@ -149,6 +149,13 @@ class VueFiche {
     }
     valider() {
         return __awaiter(this, void 0, void 0, function* () {
+            // ERG-20 : validation avant envoi nom et type obligatoires
+            let nom = $("#name").val().trim();
+            let type = $("#type").val().trim();
+            if (nom === "" || type === "") {
+                alert("Le nom et le type du logiciel sont obligatoires.");
+                return;
+            }
             let nouveau = false;
             try {
                 if (this.currentLog == null) {

@@ -10,7 +10,7 @@ class IndexView
         setTimeout(()=>{
             $("#nagScreen").removeClass("nag-overlay");
             $("#nagScreen").html("");
-        }, 3000);
+        }, 1000);
 
         $("button[type='submit']").on("click",async () => {
             await this.logIn();
