@@ -16,12 +16,14 @@
     <main>
 
         <div class="content container-fluid">
-            <div class="row margin-small">                
-                <input type="text" class="full col" id="name" placeholder="saisir le nom du logiciel" />
+            <div class="row margin-small">  
+                <!-- ajout required -->              
+                <input type="text" class="full col" id="name" placeholder="saisir le nom du logiciel" required/>
             </div>
             <div class="row margin-small">
-                <div class="col-md row align-items-center">                    
-                    <input type="text" class="full col" id="type" placeholder="saisir le type du logiciel" list="listtype" >
+                <div class="col-md row align-items-center">    
+                    <!-- ajout required -->                
+                    <input type="text" class="full col" id="type" placeholder="saisir le type du logiciel" list="listtype" required >
                     <datalist id="listtype">
                         <option>EDI</option>
                         <option>Compilateur</option>

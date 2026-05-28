@@ -1,6 +1,5 @@
 /**
  * Vue pour la fiche d'édition d'un logiciel.
- * SRP : cette classe gère l'affichage et les interactions du formulaire.
  * L'upload est délégué à FileUploader.
  */
 class VueFiche
@@ -33,11 +32,15 @@ class VueFiche
         if (id > 0)
             this.afficheLogiciel(id);
 
-        $("#add").on("click",      () => this.ajouterLog());
-        $("#remove").on("click",   () => this.retirerLog());
-        $("#cancel").on("click",   () => window.history.back());
-        $("#ok").on("click",       () => this.valider());
-        $("#urlImage").on("input", () => this.changeThumb());
+        $("#add").on("click", () => { this.ajouterLog(); });
+        $("#remove").on("click", () => { this.retirerLog(); });
+        $("#cancel").on("click", () => {
+            if (window.confirm("Les modifications non enregistrées seront perdues. Continuer ?")) {
+                window.history.back();
+            }
+        });
+        $("#ok").on("click", () => { this.valider(); });
+        $("#urlImage").on("input", () => { this.changeThumb(); });
 
         let storage     = new UtilisateurStorage();
         this.currentUser = storage.charge();
@@ -143,11 +146,19 @@ class VueFiche
             url = this.urlDepuisInput("urlPort");  if (url) log.urlPort  = url;
             url = this.urlDepuisInput("urlImage"); if (url) log.urlImage = url;
     }
+    private async valider()
+    {
+        let nom = ($("#name").val() as string).trim();
+        let type = ($("#type").val() as string).trim();
+        if (nom === "" || type === "") {
+            alert("Le nom et le type du logiciel sont obligatoires.");
+            return;
+        }
 
-    private async valider() {
+        let nouveau = false;
         try {
-            let nouveau = false;
-            if (this.currentLog == null) {
+            if (this.currentLog == null)
+            {
                 this.currentLog = new Logiciel();
                 nouveau = true;
                 this.currentLog.utilisateur = this.currentUser;

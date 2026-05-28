@@ -24,14 +24,18 @@ header{
 main{
     flex:2;
 }
+*:focus {
+    outline: 3px solid #00659B;
+    outline-offset: 2px;
+}
+
 footer {
     background-color: #4877A0;
     color: white;
     font-size: 0.8em;
-    display: flex; 
+    display: flex;
     align-items: center;
-    position: absolute;
-    bottom: 0; 
+    position: relative;
     width: 100%;
     padding-top:10px;
     text-align:center;

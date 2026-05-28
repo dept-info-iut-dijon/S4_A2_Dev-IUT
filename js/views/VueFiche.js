@@ -29,11 +29,16 @@ class VueFiche {
         let id = parseInt(query.split("=")[1]);
         if (id > 0)
             this.afficheLogiciel(id);
-        $("#add").on("click", () => this.ajouterLog());
-        $("#remove").on("click", () => this.retirerLog());
-        $("#cancel").on("click", () => window.history.back());
-        $("#ok").on("click", () => this.valider());
-        $("#urlImage").on("input", () => this.changeThumb());
+        $("#add").on("click", () => { this.ajouterLog(); });
+        $("#remove").on("click", () => { this.retirerLog(); }); 
+        $("#cancel").on("click", () => {
+            if (window.confirm("Les modifications non enregistrées seront perdues. Continuer ?")) {
+                window.history.back();
+            }
+        });
+        $("#ok").on("click", () => { this.valider(); });
+        $("#urlImage").on("input", () => { this.changeThumb(); });
+        // récupère l'utilisateur connecté
         let storage = new UtilisateurStorage();
         this.currentUser = storage.charge();
     }
@@ -138,8 +143,14 @@ class VueFiche {
     }
     valider() {
         return __awaiter(this, void 0, void 0, function* () {
+            let nom = $("#name").val().trim();
+            let type = $("#type").val().trim();
+            if (nom === "" || type === "") {
+                alert("Le nom et le type du logiciel sont obligatoires.");
+                return;
+            }
+            let nouveau = false;
             try {
-                let nouveau = false;
                 if (this.currentLog == null) {
                     this.currentLog = new Logiciel();
                     nouveau = true;
@@ -157,7 +168,6 @@ class VueFiche {
                 let matieres = [];
                 $("#uses option").each((i, el) => { matieres.push(parseInt(el.value)); });
                 yield this.matieresDAO.lierMatieres(this.currentLog, matieres);
-                // SRP : l'upload est délégué à FileUploader
                 yield this.uploader.upload("setup");
                 yield this.uploader.upload("tuto");
                 yield this.uploader.upload("port");
