@@ -66,9 +66,10 @@ class VueFiche
         $("#years .year").prop("checked", false);
         let filieres = await this.filieresDAO.listeLog(this.currentLog);
 
-        $("#years .year").each((index, element: HTMLElement) => {
-            let label = element.querySelector("label");
-            let cb = element.querySelector("input[type='checkbox']") as HTMLInputElement;
+        $("#years .year").each((index, element: Element) => {
+            const el = element as HTMLElement;
+            let label = el.querySelector("label");
+            let cb = el.querySelector("input[type='checkbox']") as HTMLInputElement;
             if (label && cb && filieres.find((val) => val.nom == label.innerText) != undefined) {
                 cb.checked = true;
             }
@@ -208,7 +209,7 @@ class VueFiche
         }
         catch (x)
         {
-            alert(x.message);
+            alert(x instanceof Error ? x.message : String(x));
         }
     }
 

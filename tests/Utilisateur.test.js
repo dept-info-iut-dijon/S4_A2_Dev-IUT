@@ -9,22 +9,24 @@ describe('Utilisateur', () => {
     // --- estAdmin ---
 
     describe('estAdmin', () => {
-        test('retourne true pour le login "aguidet"', () => {
+        test('retourne true pour un utilisateur avec role 1', () => {
             const u = new Utilisateur('aguidet');
+            u.role = 1;
             expect(u.estAdmin).toBe(true);
         });
 
-        test('retourne true même si le login est en majuscules (insensible à la casse)', () => {
-            const u = new Utilisateur('AGUIDET');
+        test('retourne true quel que soit le login si role vaut 1', () => {
+            const u = new Utilisateur('dupont');
+            u.role = 1;
             expect(u.estAdmin).toBe(true);
         });
 
-        test('retourne false pour un login quelconque', () => {
+        test('retourne false pour un utilisateur avec role 2 (professeur)', () => {
             const u = new Utilisateur('dupont');
             expect(u.estAdmin).toBe(false);
         });
 
-        test('retourne false pour une chaîne vide', () => {
+        test('retourne false pour un utilisateur créé sans rôle explicite', () => {
             const u = new Utilisateur('');
             expect(u.estAdmin).toBe(false);
         });

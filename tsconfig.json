@@ -3,7 +3,7 @@
     "target": "es6",
     "module": "es6",
     "noEmitOnError": false,
-    "strict": false
+    "strict": true
   }, 
   "compileOnSave": true
 }
