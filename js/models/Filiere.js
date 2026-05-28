@@ -1,3 +1,4 @@
+"use strict";
 class Filiere {
     get id() {
         return this._id;

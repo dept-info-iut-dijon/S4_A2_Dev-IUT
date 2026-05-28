@@ -1,6 +1,6 @@
 ﻿class Filiere
 {
-    private _id: number;
+    private _id!: number;
 
     public get id(): number {
         return this._id;
@@ -9,7 +9,7 @@
         this._id = value;
     }
 
-    private _nom: string;
+    private _nom!: string;
 
     get nom() {
         return this._nom;

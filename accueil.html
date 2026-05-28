@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, height=device-height initial-scale=1">
     <title>Logiciels IUT informatique</title>
-    <link href="css/styles.css" rel="stylesheet" />
-    <link href="css/accueil.css" rel="stylesheet" />
+    <link href="css/styles.min.css" rel="stylesheet" />
+    <link href="css/accueil.min.css" rel="stylesheet" />
 </head>
 <body>    
     <div id="page">
@@ -60,7 +60,7 @@
             <div class="list">
             </div>
             <div class="teacher centerContent hide">
-                <label id="add" class="link">Proposer un logiciel</label>
+                <button id="add" class="link">Proposer un logiciel</button>
             </div>
         </div>
         <div class="content">
@@ -69,8 +69,8 @@
             </div>
 
             <div id="actions" class="fillContent hide">
-                <label id="modify" class="admin link" >Modifier la fiche</label>
-                <label class="admin link" id="delete">Supprimer la fiche</label>
+                <button id="modify" class="admin link">Modifier la fiche</button>
+                <button class="admin link" id="delete">Supprimer la fiche</button>
             </div>
         </div>
         
@@ -79,19 +79,21 @@
     <div w3-include-html="footer.html"></div>
     </div>
     <script src="js/lib/jquery.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/models/Filiere.js"></script>
-    <script src="js/models/Matiere.js"></script>
-    <script src="js/models/Logiciel.js"></script>
-    <script src="js/sgbd/UtilisateurDao.js"></script>
-    <script src="js/sgbd/FiliereDao.js"></script>
-    <script src="js/sgbd/MatieresDAO.js"></script>
-    <script src="js/sgbd/LogicielDao.js"></script>
-    <script src="js/views/VueLogicielsVM.js"></script>
-    <script src="js/models/Utilisateur.js"></script>
-    <script src="js/views/VueLogiciels.js"></script>
-    <script src="js/sgbd/UtilisateurStorage.js"></script>
-    <script src="js/views/VueHeader.js"></script>
-    <script src="js/sgbd/Login.js"></script>
+    <script src="js/utils.min.js"></script>
+    <script src="js/models/Filiere.min.js"></script>
+    <script src="js/models/Matiere.min.js"></script>
+    <script src="js/models/Logiciel.min.js"></script>
+    <script src="js/sgbd/UtilisateurDao.min.js"></script>
+    <script src="js/sgbd/FiliereDao.min.js"></script>
+    <script src="js/sgbd/MatieresDAO.min.js"></script>
+    <script src="js/sgbd/LogicielDao.min.js"></script>
+    <script src="js/views/VueLogicielsVM.min.js"></script>
+    <script src="js/models/Utilisateur.min.js"></script>
+    <script src="js/views/VuePagination.min.js"></script>
+    <script src="js/views/FiltreLogiciels.min.js"></script>
+    <script src="js/views/VueLogiciels.min.js"></script>
+    <script src="js/sgbd/UtilisateurStorage.min.js"></script>
+    <script src="js/views/VueHeader.min.js"></script>
+    <script src="js/sgbd/Login.min.js"></script>
 </body>
 </html>

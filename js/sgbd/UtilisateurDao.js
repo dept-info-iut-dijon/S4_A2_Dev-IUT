@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -22,6 +23,7 @@ class UtilisateurDao {
      */
     LireUtilisateur(login) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             let user;
             if (this.cache.has(login)) {
                 user = this.cache.get(login);
@@ -42,6 +44,7 @@ class UtilisateurDao {
                 user.nom = data.nom;
                 user.statut = data.statut;
                 user.departement = data.departement;
+                user.role = (_a = data.role) !== null && _a !== void 0 ? _a : 2;
                 this.cache.set(login, user);
             }
             return user;
@@ -53,6 +56,7 @@ class UtilisateurDao {
      */
     LireUtilisateurConnecté() {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             let data = yield $.ajax({
                 url: "php/user.php",
                 dataType: "json",
@@ -63,6 +67,7 @@ class UtilisateurDao {
             user.nom = data.nom;
             user.statut = data.statut;
             user.departement = data.departement;
+            user.role = (_a = data.role) !== null && _a !== void 0 ? _a : 2;
             return user;
         });
     }
@@ -70,6 +75,18 @@ class UtilisateurDao {
      * Ajoute, dans le serveur, l'utilisateur indiqué
      * @param currentUser l'utilisateur a ajouter
      */
+    supprimerCompte(login, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield $.ajax({
+                url: "php/user.dao.php",
+                method: "post",
+                dataType: "json",
+                data: { "action": "delete", "login": login, "password": password },
+                error: (xhr) => { console.log(xhr); }
+            });
+            return ret.response === "ok";
+        });
+    }
     ajouteUtilisateur(currentUser) {
         return __awaiter(this, void 0, void 0, function* () {
             let ret = yield $.ajax({

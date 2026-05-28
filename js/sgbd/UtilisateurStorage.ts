@@ -1,5 +1,5 @@
 /**
- * Permet de gérer la persistance des données de l'utilisateur
+ * Permet de gï¿½rer la persistance des donnï¿½es de l'utilisateur
  */
 class UtilisateurStorage {
     /**
@@ -11,7 +11,7 @@ class UtilisateurStorage {
         window.sessionStorage.setItem("connectedUser", str);
     }
 
-    /** 
+    /**
      * Charge l'utilisateur
      * @returns l'utilisateur
      */
@@ -20,11 +20,12 @@ class UtilisateurStorage {
         let user = new Utilisateur();
         if (str) {
             let obj = JSON.parse(str);
-            user.nom = obj._nom;
-            user.statut = obj._statut;
-            user.login = obj._login;
-            user.departement = obj._departement;
+            user.nom = obj.nom ?? obj._nom;
+            user.statut = obj.statut ?? obj._statut;
+            user.login = obj.login ?? obj._login;
+            user.departement = obj.departement ?? obj._departement;
+            user.role = obj.role ?? obj._role ?? 2;
         }
         return user;
-    }   
+    }
 }

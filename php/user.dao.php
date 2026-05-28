@@ -1,63 +1,94 @@
 <?php
 require_once("database.php");
+require_once("constants.php");
 
+// SRP : le hashage est isolé ici, séparé du DAO
+class PasswordService
+{
+    public function hasher(string $motDePasse): string
+    {
+        return password_hash($motDePasse, PASSWORD_BCRYPT);
+    }
+
+    public function verifier(string $motDePasse, string $empreinte): bool
+    {
+        return password_verify($motDePasse, $empreinte);
+    }
+}
 
 class UserDao
 {
-    private Database $bdd;
-    /**
-     * Initialise l'objet
-     * @param Database $bdd la base de donn�es li�e
-     */
-    public function __construct(Database $bdd)
+    private Database $database;
+    private PasswordService $passwordService;
+
+    // DIP : les dépendances sont injectées, pas créées en interne
+    public function __construct(Database $database, PasswordService $passwordService)
     {
-        $this->bdd = $bdd;
+        $this->database = $database;
+        $this->passwordService = $passwordService;
     }
 
-    /**
-     * Read a user
-     * @param string $login the login
-     * @return mixed user on array
-     */
-    public function readUser($login){
-        $req = "SELECT * FROM Utilisateur WHERE login=?";
-        return $this->bdd->queryOne($req,[$login]);
+    public function lireUtilisateur(string $login): mixed
+    {
+        $requete = "SELECT * FROM Utilisateur WHERE login=?";
+        return $this->database->lireUn($requete, [$login]);
     }
-    
-    /**
-     * Add a user, if not exists, in BDD
-     * @param mixed $user
-     * @return bool true if the user has been added
-     */
-    public function addUser($user){        
-        $added=false;
-        $req = "INSERT INTO Utilisateur(login,nom,statut,departement,role) VALUES(?,?,?,?,1);";
-        $this->bdd->execute($req,[$user["login"],$user["nom"],$user["statut"],$user["departement"]]);
-        $added=true;
-        return $added;
+
+    public function supprimerUtilisateur(string $login, string $password): bool
+    {
+        $utilisateur = $this->lireUtilisateur($login);
+        if (!isset($utilisateur["hashpass"])) {
+            return false;
+        }
+        if (!$this->passwordService->verifier($password, $utilisateur["hashpass"])) {
+            return false;
+        }
+        $this->database->executer("DELETE FROM Utilisateur WHERE login=?", [$login]);
+        return true;
+    }
+
+    public function ajouterUtilisateur(array $utilisateur): bool
+    {
+        $empreinte = $this->passwordService->hasher($utilisateur["password"]);
+        $requete = "INSERT INTO Utilisateur(login, nom, statut, departement, role, hashpass) VALUES(?,?,?,?," . ROLE_PROF . ",?)";
+        $this->database->executer($requete, [
+            $utilisateur["login"], $utilisateur["nom"],
+            $utilisateur["statut"], $utilisateur["departement"], $empreinte
+        ]);
+        return true;
     }
 }
-if(isset($_POST["action"]))
-{
-    $bdd = new Database();
-    $dao = new UserDao($bdd);
 
-    $action=$_POST["action"];
-    if($action=="read" && isset($_POST["login"]))
-    {
-        echo json_encode($dao->readUser($_POST["login"]));
+if (isset($_POST["action"])) {
+    $database = new Database();
+    $daoUtilisateur = new UserDao($database, new PasswordService());
+
+    if ($_POST["action"] === "read" && isset($_POST["login"])) {
+        echo json_encode($daoUtilisateur->lireUtilisateur($_POST["login"]));
     }
-    else if($action=="add")
-    {
-
-        try{
-            $ret=$dao->addUser($_POST);
-            echo json_encode(["response"=>"ok","message"=>$ret]);
+    else if ($_POST["action"] === "delete" && isset($_POST["login"], $_POST["password"])) {
+        session_start();
+        $login = $_SESSION["login"] ?? "";
+        // on ne peut supprimer que son propre compte
+        if ($login !== $_POST["login"]) {
+            echo json_encode(["response" => "error", "message" => "Interdit"]);
+            exit;
         }
-        catch(Exception $e){
-            $msg = $e->getMessage();
-            echo json_encode(["response"=>"ok", "message"=>$msg]);            
+        $supprime = $daoUtilisateur->supprimerUtilisateur($_POST["login"], $_POST["password"]);
+        if ($supprime) {
+            session_destroy();
+            echo json_encode(["response" => "ok"]);
+        } else {
+            echo json_encode(["response" => "error", "message" => "Mot de passe incorrect"]);
+        }
+    }
+    else if ($_POST["action"] === "add") {
+        try {
+            $resultat = $daoUtilisateur->ajouterUtilisateur($_POST);
+            echo json_encode(["response" => "ok", "message" => $resultat]);
+        }
+        catch (Exception $exception) {
+            echo json_encode(["response" => "error", "message" => $exception->getMessage()]);
         }
     }
 }
-?>

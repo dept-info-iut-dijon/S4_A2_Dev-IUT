@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 /**
- * Vue pour la fiche d'édition d'un logiciel
+ * Vue pour la fiche d'édition d'un logiciel.
  */
 class VueFiche {
     constructor() {
@@ -18,26 +19,28 @@ class VueFiche {
         this.matieresDAO = new MatiereDAO();
         this.logicielsDAO = new LogicielDAO();
         this.utilisateursDAO = new UtilisateurDao();
+        this.uploader = new FileUploader();
         this.vueModele = new VueLogicielsVM(this.filieresDAO, this.matieresDAO, this.logicielsDAO);
         this.listerFilieres();
         this.listerMatieres();
-        // récupère l'id via la requête
         let query = window.location.search.substring(1);
         let id = parseInt(query.split("=")[1]);
-        if (id > 0) // modification, pas création
+        if (id > 0)
             this.afficheLogiciel(id);
-        // liaison des events
         $("#add").on("click", () => { this.ajouterLog(); });
-        $("#remove").on("click", () => { this.retirerLog(); });
-        $("#cancel").on("click", () => { window.history.back(); });
+        $("#remove").on("click", () => { this.retirerLog(); }); 
+        $("#cancel").on("click", () => {
+            if (window.confirm("Les modifications non enregistrées seront perdues. Continuer ?")) {
+                window.history.back();
+            }
+        });
         $("#ok").on("click", () => { this.valider(); });
         $("#urlImage").on("input", () => { this.changeThumb(); });
-        // récupère l'utilisateur connecté
         let storage = new UtilisateurStorage();
         this.currentUser = storage.charge();
     }
     changeThumb() {
-        $("#thumb").prop("src", this.getFileName("urlImage"));
+        $("#thumb").prop("src", this.urlDepuisInput("urlImage"));
     }
     afficheLogiciel(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -71,18 +74,17 @@ class VueFiche {
             let div = document.createElement("div");
             div.classList.add("year");
 
-            // E4 : input avant le label, texte à droite de la case
             let cb = document.createElement("input");
             cb.type = "checkbox";
             cb.value = filiere.id.toString();
             cb.id = "filiere_" + filiere.id;
 
             let label = document.createElement("label");
-            label.htmlFor = cb.id;      // lié par for/id
+            label.htmlFor = cb.id;    
             label.innerHTML = filiere.nom;
 
-            div.appendChild(cb);        // case en premier
-            div.appendChild(label);     // texte après
+            div.appendChild(cb);        
+            div.appendChild(label);     
             $(selector).append(div);
         });
     }
@@ -109,125 +111,75 @@ class VueFiche {
         });
     }
     ajouterLog() {
-        // ajoute l'option sélectionnée dans courses à la liste uses
         let opt = $("#courses option:selected");
         $("#uses").append(opt);
     }
     retirerLog() {
-        // retire l'option sélectionnée dans la liste uses        
         let opt = $("#uses option:selected");
         $("#courses").append(opt);
     }
-    getFileName(id) {
+    urlDepuisInput(id) {
         let input = document.getElementById(id);
-        let files = input.files;
-        let file = "";
-        if (files.length > 0) {
-            let url = files[0].name;
-            file = "files/" + url;
-        }
-        return file;
+        if (input.files && input.files.length > 0)
+            return "files/" + input.files[0].name;
+        return "";
     }
     lireChamps(log) {
-        // récupère les champs saisis par l'utilisateur et modifie le logiciel en conséquence
         log.comment = $("#desc").val();
         log.nom = $("#name").val();
         log.type = $("#type").val();
         log.version = $("#version").val();
         log.obsolete = $("#obsolete").prop("checked");
         log.numero_serie = this.input_serie.value;
-        //récupérer les noms des URL
-        let url = this.getFileName("urlTuto");
-        if (url != "")
+        let url = this.urlDepuisInput("urlTuto");
+        if (url)
             log.urlTuto = url;
-        url = this.getFileName("urlSetup");
-        if (url != "")
+        url = this.urlDepuisInput("urlSetup");
+        if (url)
             log.urlSetup = url;
-        url = this.getFileName("urlPort");
-        if (url != "")
+        url = this.urlDepuisInput("urlPort");
+        if (url)
             log.urlPort = url;
-        url = this.getFileName("urlImage");
-        if (url != "")
+        url = this.urlDepuisInput("urlImage");
+        if (url)
             log.urlImage = url;
     }
     valider() {
         return __awaiter(this, void 0, void 0, function* () {
-            // valide les modifications et ferme la fenêtre
+            let nom = $("#name").val().trim();
+            let type = $("#type").val().trim();
+            if (nom === "" || type === "") {
+                alert("Le nom et le type du logiciel sont obligatoires.");
+                return;
+            }
             let nouveau = false;
             try {
-                if (this.currentLog == null) // création, pas modification
-                 {
+                if (this.currentLog == null) {
                     this.currentLog = new Logiciel();
                     nouveau = true;
                     this.currentLog.utilisateur = this.currentUser;
                     this.utilisateursDAO.ajouteUtilisateur(this.currentUser);
                 }
-                {
-                    $("#ok").addClass("hide");
-                    $("#cancel").addClass("hide");
-                    this.lireChamps(this.currentLog);
-                    yield this.logicielsDAO.majLogiciel(this.currentLog);
-                    // gérer les filières liées
-                    let filieres = [];
-                    $(".year input").each((index, element) => {
-                        if (element.checked) {
-                            filieres.push(element.value);
-                        }
-                    });
-                    yield this.filieresDAO.lierFilieres(this.currentLog, filieres);
-                    // gérer les matières liées
-                    let matieres = [];
-                    $("#uses option").each((index, element) => {
-                        matieres.push(element.value);
-                    });
-                    yield this.matieresDAO.lierMatieres(this.currentLog, matieres);
-                    // gérer les fichiers uploadés
-                    yield this.upload("setup");
-                    yield this.upload("tuto");
-                    yield this.upload("port");
-                    yield this.upload("image");
-                    if (nouveau)
-                        alert("Le logiciel a été soumis à l'administrateur.");
-                    else
-                        alert("Modifications apportées au logiciel");
-                    window.history.back();
-                }
+                $("#ok").addClass("hide");
+                $("#cancel").addClass("hide");
+                this.lireChamps(this.currentLog);
+                yield this.logicielsDAO.majLogiciel(this.currentLog);
+                let filieres = [];
+                $(".year input").each((i, el) => { const cb = el; if (cb.checked)
+                    filieres.push(parseInt(cb.value)); });
+                yield this.filieresDAO.lierFilieres(this.currentLog, filieres);
+                let matieres = [];
+                $("#uses option").each((i, el) => { matieres.push(parseInt(el.value)); });
+                yield this.matieresDAO.lierMatieres(this.currentLog, matieres);
+                yield this.uploader.upload("setup");
+                yield this.uploader.upload("tuto");
+                yield this.uploader.upload("port");
+                yield this.uploader.upload("image");
+                alert(nouveau ? "Le logiciel a été soumis à l'administrateur." : "Modifications apportées au logiciel");
+                window.history.back();
             }
             catch (x) {
-                alert(x.message);
-            }
-        });
-    }
-    upload(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let selectorFile = "#" + id + " input[type='file']";
-            let selectorRange = "#" + id + " input[type='range']";
-            let input = document.querySelector(selectorFile);
-            let files = input.files;
-            if (files.length > 0) {
-                let formData = new FormData();
-                formData.append("file", files[0]);
-                $(selectorRange).removeClass("hide");
-                let data = yield $.ajax({
-                    xhr: () => {
-                        let xhr = new window.XMLHttpRequest();
-                        xhr.upload.addEventListener("progress", (evt) => {
-                            if (evt.lengthComputable) {
-                                let complete = (evt.loaded / evt.total) * 100;
-                                $(selectorRange).val(complete);
-                            }
-                        }, false);
-                        return xhr;
-                    },
-                    method: "post",
-                    url: "php/upload.php",
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    error: (obj, status, error) => { console.log(error); } // todo better
-                });
-                console.log(data); // todo better
-                $(selectorRange).addClass("hide");
+                alert(x instanceof Error ? x.message : String(x));
             }
         });
     }

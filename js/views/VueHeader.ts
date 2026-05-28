@@ -32,13 +32,37 @@
         {
             $(".admin").addClass("hide");
         }
-        $("#disconnect").on("click",async ()=>{await this.logOut();});
+        $("#disconnect").on("click", async () => { await this.logOut(); });
+        $("#delete-account").on("click", () => { this.ouvrirModale(); });
+        $("#annuler-suppression").on("click", () => { this.fermerModale(); });
+        $("#confirmer-suppression").on("click", async () => { await this.supprimerCompte(user); });
     }
 
-    private async logOut(){
+    private async logOut() {
         let log = new Login();
         await log.logout();
-        window.location.href="index.html";
+        window.location.href = "index.html";
+    }
+
+    private ouvrirModale() {
+        ($("#confirm-password") as any).val("");
+        $("#erreur-suppression").hide();
+        (document.getElementById("modale-suppression") as HTMLDialogElement).showModal();
+    }
+
+    private fermerModale() {
+        (document.getElementById("modale-suppression") as HTMLDialogElement).close();
+    }
+
+    private async supprimerCompte(user: Utilisateur) {
+        let password = ($("#confirm-password") as any).val() as string;
+        let dao = new UtilisateurDao();
+        let supprime = await dao.supprimerCompte(user.login, password);
+        if (supprime) {
+            window.location.href = "index.html";
+        } else {
+            $("#erreur-suppression").show();
+        }
     }
 }  
 

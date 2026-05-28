@@ -3,6 +3,18 @@
         <span>Utilisateur connecté : <span id="user"></span></span>
         <span>Rôle : <span id="role"></span></span>
 
-        <button id="disconnect">Déconnecter</button>        
+        <button id="disconnect">Déconnecter</button>
+        <button id="delete-account">Supprimer mon compte</button>
 </header>
 
+<!-- Modale de confirmation suppression de compte -->
+<dialog id="modale-suppression">
+    <h2>Supprimer mon compte</h2>
+    <p>Cette action est irréversible. Confirmez avec votre mot de passe.</p>
+    <input type="password" id="confirm-password" placeholder="Mot de passe" />
+    <p id="erreur-suppression" style="color:red; display:none;">Mot de passe incorrect.</p>
+    <div>
+        <button id="confirmer-suppression">Confirmer la suppression</button>
+        <button id="annuler-suppression">Annuler</button>
+    </div>
+</dialog>

@@ -1,60 +1,85 @@
 <?php
-
 require_once("logiciels.dao.php");
-$bdd = new Database();
-$dao = new LogicielsDao($bdd);
+require_once("auth.php");
 
-$list=array();
-if(isset($_GET["portable"]))            
-    $portable = filter_var($_GET["portable"],FILTER_VALIDATE_BOOLEAN);
-else
-    $portable=false;
+session_start();
+if (!isset($_SESSION["login"])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Non authentifié"]);
+    exit;
+}
 
-if(isset($_GET["obsolete"]))
-    $cacherObs = filter_var($_GET["obsolete"],FILTER_VALIDATE_BOOLEAN);
-else
-    $cacherObs = false;
+$database     = new Database();
+$daoLogiciels = new LogicielsDao($database);
 
-if(isset($_GET["action"]))
-{
-    if($_GET["action"]=="update")
-    {
-        $dao->majLogiciel($_GET);
+$portable       = isset($_GET["portable"]) ? filter_var($_GET["portable"], FILTER_VALIDATE_BOOLEAN) : false;
+$cacherObsolete = isset($_GET["obsolete"]) ? filter_var($_GET["obsolete"], FILTER_VALIDATE_BOOLEAN) : false;
+
+try {
+    if (isset($_GET["action"])) {
+        if ($_GET["action"] === "update") {
+            require_admin();
+            $daoLogiciels->mettreAJourLogiciel($_GET);
+            echo json_encode(["result" => "ok"]);
+        }
+        else if ($_GET["action"] === "insert") {
+            $id = $daoLogiciels->ajouterLogiciel($_GET);
+            echo json_encode(["id" => $id]);
+        }
+        else if ($_GET["action"] === "delete") {
+            $daoLogiciels->supprimerLogiciel($_GET);
+            echo json_encode(["result" => "ok"]);
+        }
     }
-    else if($_GET["action"]=="insert")
-    {
-       $list["id"] = $dao->addLogiciel($_GET);
+    else if (isset($_GET["idmat"])) {
+        $id = filter_var($_GET["idmat"], FILTER_VALIDATE_INT);
+        if ($id === false) { http_response_code(400); echo json_encode(["error" => "idmat invalide"]); exit; }
+        if (isset($_GET["page"])) {
+            $page   = intval($_GET["page"]);
+            $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+            echo json_encode($daoLogiciels->listByMatierePagine($id, $portable, $cacherObsolete, $page, $limite));
+        } else {
+            echo json_encode($daoLogiciels->listerParMatiere($id, $portable, $cacherObsolete));
+        }
     }
-    else if($_GET["action"]=="delete")
-    {
-        $dao->delLogiciel($_GET);
+    else if (isset($_GET["idfil"])) {
+        $id = filter_var($_GET["idfil"], FILTER_VALIDATE_INT);
+        if ($id === false) { http_response_code(400); echo json_encode(["error" => "idfil invalide"]); exit; }
+        if (isset($_GET["page"])) {
+            $page   = intval($_GET["page"]);
+            $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+            echo json_encode($daoLogiciels->listByFilierePagine($id, $portable, $cacherObsolete, $page, $limite));
+        } else {
+            echo json_encode($daoLogiciels->listerParFiliere($id, $portable, $cacherObsolete));
+        }
     }
+    else if (isset($_GET["nom"])) {
+        $nom = strip_tags($_GET["nom"]);
+        if (isset($_GET["page"])) {
+            $page   = intval($_GET["page"]);
+            $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+            echo json_encode($daoLogiciels->listByNamePagine($nom, $portable, $cacherObsolete, $page, $limite));
+        } else {
+            echo json_encode($daoLogiciels->listerParNom($nom, $portable, $cacherObsolete));
+        }
+    }
+    else if (isset($_GET["id"])) {
+        $id = filter_var($_GET["id"], FILTER_VALIDATE_INT);
+        if ($id === false) { http_response_code(400); echo json_encode(["error" => "id invalide"]); exit; }
+        echo json_encode($daoLogiciels->listerParId($id));
+    }
+    else {
+        if (isset($_GET["page"])) {
+            $page   = intval($_GET["page"]);
+            $limite = isset($_GET["limite"]) ? intval($_GET["limite"]) : 20;
+            echo json_encode($daoLogiciels->listAllPagine($portable, $cacherObsolete, $page, $limite));
+        } else {
+            echo json_encode($daoLogiciels->listerTous($portable, $cacherObsolete));
+        }
+    }
+} catch (Exception $e) {
+    error_log('[logiciels] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["error" => "Erreur du serveur"]);
+    exit;
 }
-else if(isset($_GET["idmat"]))
-{
-    $id = $_GET["idmat"];
-    $list = $dao->listByMatiere($id, $portable, $cacherObs);
-}
-else if(isset($_GET["idfil"]))
-{
-    $id = $_GET["idfil"];
-    $list = $dao->listByFiliere($id, $portable, $cacherObs);
-
-}
-else if(isset($_GET["nom"]))
-{
-    $nom = $_GET["nom"];
-    $list = $dao->listByName($nom, $portable, $cacherObs);
-}
-else if(isset($_GET["id"]))
-{
-    $id = $_GET["id"];
-    $list = $dao->listById($id);
-}
-
-else
-{
-    $list = $dao->listAll($portable, $cacherObs);
-}
-echo json_encode($list);
-?>

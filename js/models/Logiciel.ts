@@ -3,49 +3,49 @@
  * */
 class Logiciel
 {
-    private _id: number;
+    private _id!: number;
     public get id(): number {
         return this._id;
     }
     public set id(value: number) {
         this._id = value;
     }
-    private _nom: string;
+    private _nom!: string;
     public get nom(): string {
         return this._nom;
     }
     public set nom(value: string) {
         this._nom = value;
     }
-    private _version: string;
+    private _version!: string;
     public get version(): string {
         return this._version;
     }
     public set version(value: string) {
         this._version = value;
     }
-    private _comment: string;
+    private _comment!: string;
     public get comment(): string {
         return this._comment;
     }
     public set comment(value: string) {
         this._comment = value;
     }
-    private _urlSetup: string;
+    private _urlSetup!: string;
     public get urlSetup(): string {
         return this._urlSetup;
     }
     public set urlSetup(value: string) {
         this._urlSetup = value;
     }
-    private _urlTuto: string;
+    private _urlTuto!: string;
     public get urlTuto(): string {
         return this._urlTuto;
     }
     public set urlTuto(value: string) {
         this._urlTuto = value;
     }
-    private _visible: boolean;
+    private _visible!: boolean;
     public get visible(): boolean {
         return this._visible;
     }
@@ -60,7 +60,7 @@ class Logiciel
         return this.nom + " " + this.version + add;
     }
 
-    private _type: string;
+    private _type!: string;
     public get type(): string {
         return this._type;
     }
@@ -68,7 +68,7 @@ class Logiciel
         this._type = value;
     }
 
-    private _date_ajout: Date;
+    private _date_ajout!: Date;
     public get date_ajout(): Date {
         return this._date_ajout;
     }
@@ -80,7 +80,7 @@ class Logiciel
         return this.id == 0;
     }
 
-    private _numero_serie: string;
+    private _numero_serie!: string;
     public get numero_serie(): string {
         return this._numero_serie;
     }
@@ -99,7 +99,7 @@ class Logiciel
         this.date_ajout = new Date();
     }
 
-    private _urlPort: string;
+    private _urlPort!: string;
     public get urlPort(): string {
         return this._urlPort;
     }
@@ -107,7 +107,7 @@ class Logiciel
         this._urlPort = value;
     }
 
-    private _urlImage: string;
+    private _urlImage!: string;
     public get urlImage(): string {
         return this._urlImage;
     }
@@ -115,7 +115,7 @@ class Logiciel
         this._urlImage = value;
     }
 
-    private _obsolete: boolean;
+    private _obsolete!: boolean;
     public get obsolete(): boolean {
         return this._obsolete;
     }
@@ -123,7 +123,7 @@ class Logiciel
         this._obsolete = value;
     }
 
-    private _utilisateur: Utilisateur;
+    private _utilisateur!: Utilisateur;
     public get utilisateur(): Utilisateur {
         return this._utilisateur;
     }

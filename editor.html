@@ -3,10 +3,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Logiciels IUT informatique</title>
-    <link href="css/styles.css" rel="stylesheet" />
-    <link href="css/accueil.css" rel="stylesheet" />
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <link href="css/styles.min.css" rel="stylesheet" />
+    <link href="css/accueil.min.css" rel="stylesheet" />
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
@@ -19,14 +17,12 @@
 
         <div class="content container-fluid">
             <div class="row margin-small">
-                <!-- E1/E3 : label explicite ajouté -->
                 <label for="name" class="col-12">Nom du logiciel</label>
                 <input type="text" class="full col" id="name" placeholder="saisir le nom du logiciel" />
             </div>
 
             <div class="row margin-small">
                 <div class="col-md row align-items-center">
-                    <!-- E1/E3 : label explicite -->
                     <label for="type" class="col-12">Type du logiciel</label>
                     <input type="text" class="full col" id="type" placeholder="saisir le type du logiciel" list="listtype">
                     <datalist id="listtype">
@@ -41,7 +37,6 @@
 
                 </div>
                 <div class="col-md row align-items-center">   
-                    <!-- E1/E3 : label explicite ajouté -->
                     <label for="version" class="col-12">Version du logiciel</label>
 
                     <input class="col full" type="text" id="version" placeholder="saisir la version du logiciel" />
@@ -50,7 +45,6 @@
             
             <div class="row margin-small align-items-center">
                 <div class="col-md row">          
-                    <!-- E1/E3 : label explicite ajouté -->
                     <label for="serie" class="col-12">Numéro de série</label>
 
                     <input id="serie" class="full col-md" placeholder="saisir le numéro de série" />
@@ -64,12 +58,9 @@
 
             <div class="row margin-small">
                 <div class="col-md " >
-                    <!-- E2 : fieldset+legend remplace le div+label pour grouper les cases BUT -->
-                    <!-- E4 : input avant label, texte à droite de la case -->
                     <fieldset class="col">
                         <legend class="centerContent">Filières utilisant ce logiciel :</legend>
                         <div id="years">
-                            <!-- cases générées dynamiquement par VueFiche.js -->
                         </div>
                     </fieldset>
                 </div>
@@ -91,7 +82,6 @@
                     <label for="uses" class="centerContent">Utilisant ce logiciel :</label>
                     <select id="uses" class="col listitem borders" size="6">
                         <!-- liste avec les matières utilisées -->
-                       <!-- <option class="course" value="4">Gestion données</option> -->
                     </select>
                 </div>                
             </div>
@@ -144,21 +134,20 @@
             
     </main>
 
-    <div w3-include-html="footer.html"></div>           
-    <script src="js/lib/jquery.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/models/Filiere.js"></script>
-    <script src="js/models/Matiere.js"></script>
-    <script src="js/models/Logiciel.js"></script>
-    <script src="js/sgbd/FiliereDao.js"></script>
-    <script src="js/sgbd/MatieresDAO.js"></script>
-    <script src="js/sgbd/UtilisateurDao.js"></script>
-    <script src="js/sgbd/LogicielDao.js"></script>
-    <script src="js/views/VueLogicielsVM.js"></script>
-    <script src="js/models/Utilisateur.js"></script>    
-    <script src="js/sgbd/UtilisateurStorage.js"></script>
-
-    <script src="js/views/VueHeader.js"></script>
-    <script src="js/views/VueFiche.js"></script>
+        <script src="js/lib/jquery.js"></script>
+        <script src="js/utils.min.js"></script>
+        <script src="js/models/Filiere.min.js"></script>
+        <script src="js/models/Matiere.min.js"></script>
+        <script src="js/models/Logiciel.min.js"></script>
+        <script src="js/sgbd/FiliereDao.min.js"></script>
+        <script src="js/sgbd/MatieresDAO.min.js"></script>
+        <script src="js/sgbd/UtilisateurDao.min.js"></script>
+        <script src="js/sgbd/LogicielDao.min.js"></script>
+        <script src="js/views/VueLogicielsVM.min.js"></script>
+        <script src="js/models/Utilisateur.min.js"></script>
+        <script src="js/sgbd/UtilisateurStorage.min.js"></script>
+        <script src="js/views/VueHeader.min.js"></script>
+        <script src="js/views/FileUploader.min.js"></script>
+        <script src="js/views/VueFiche.min.js"></script>
 </body>
 </html> 

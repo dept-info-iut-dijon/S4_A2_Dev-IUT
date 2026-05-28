@@ -1,5 +1,6 @@
-﻿/**
- * Vue pour la fiche d'édition d'un logiciel
+/**
+ * Vue pour la fiche d'édition d'un logiciel.
+ * L'upload est délégué à FileUploader.
  */
 class VueFiche
 {
@@ -8,7 +9,8 @@ class VueFiche
     private matieresDAO: MatiereDAO;
     private logicielsDAO: LogicielDAO;
     private utilisateursDAO: UtilisateurDao;
-    private currentLog: Logiciel;
+    private uploader: FileUploader;
+    private currentLog: Logiciel | null;
     private currentUser: Utilisateur;
     private input_serie: HTMLInputElement;
 
@@ -19,7 +21,9 @@ class VueFiche
         this.matieresDAO = new MatiereDAO();
         this.logicielsDAO = new LogicielDAO();
         this.utilisateursDAO = new UtilisateurDao();
-        this.vueModele = new VueLogicielsVM(this.filieresDAO, this.matieresDAO, this.logicielsDAO);
+        this.uploader        = new FileUploader();
+        this.vueModele       = new VueLogicielsVM(this.filieresDAO, this.matieresDAO, this.logicielsDAO);
+
         this.listerFilieres();
         this.listerMatieres();
 
@@ -30,7 +34,11 @@ class VueFiche
 
         $("#add").on("click", () => { this.ajouterLog(); });
         $("#remove").on("click", () => { this.retirerLog(); });
-        $("#cancel").on("click", () => { window.history.back(); });
+        $("#cancel").on("click", () => {
+            if (window.confirm("Les modifications non enregistrées seront perdues. Continuer ?")) {
+                window.history.back();
+            }
+        });
         $("#ok").on("click", () => { this.valider(); });
         $("#urlImage").on("input", () => { this.changeThumb(); });
 
@@ -38,9 +46,8 @@ class VueFiche
         this.currentUser = storage.charge();
     }
 
-    private changeThumb()
-    {
-        $("#thumb").prop("src", this.getFileName("urlImage"));
+    private changeThumb() {
+        $("#thumb").prop("src", this.urlDepuisInput("urlImage"));
     }
 
     private async afficheLogiciel(id: number) {
@@ -59,7 +66,6 @@ class VueFiche
         $("#years .year").prop("checked", false);
         let filieres = await this.filieresDAO.listeLog(this.currentLog);
 
-        // E4 : on cherche la case et le label séparément dans chaque .year
         $("#years .year").each((index, element: HTMLElement) => {
             let label = element.querySelector("label");
             let cb = element.querySelector("input[type='checkbox']") as HTMLInputElement;
@@ -73,20 +79,17 @@ class VueFiche
         this.input_serie.value = this.currentLog.numero_serie;
     }
 
-    private putFilieres(filieres: Array<Filiere>, selector: string)
-    {
+    private putFilieres(filieres: Array<Filiere>, selector: string) {
         $(selector).html("");
         filieres.forEach((filiere: Filiere) => {
-            let div = document.createElement("div");
+            let div   = document.createElement("div");
             div.classList.add("year");
 
-            // E4 : input en premier, label après — texte à droite de la case
             let cb = document.createElement("input");
             cb.type = "checkbox";
             cb.value = filiere.id.toString();
             cb.id = "filiere_" + filiere.id;
 
-            // E1 : label lié à la case via htmlFor/id
             let label = document.createElement("label");
             label.htmlFor = cb.id;
             label.innerHTML = filiere.nom;
@@ -131,7 +134,7 @@ class VueFiche
         $("#courses").append(opt);
     }
 
-    private getFileName(id: string): string {
+    private urlDepuisInput(id: string): string {
         let input = document.getElementById(id) as HTMLInputElement;
         let files = input.files;
         let file = "";
@@ -248,4 +251,4 @@ class VueFiche
 window.onload = () => {
     let view = new VueFiche();
     initHeader();
-}
+};

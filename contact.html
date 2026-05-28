@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Logiciels IUT informatique</title>
     <meta charset="utf-8" />
-    <link href="css/styles.css" rel="stylesheet" />
-    <link href="css/index.css" rel="stylesheet" />
+    <link href="css/styles.min.css" rel="stylesheet" />
+    <link href="css/index.min.css" rel="stylesheet" />
      <!-- Icônes Font Awesome (CDN) -->
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -18,7 +18,8 @@
     <div class="container">
         
         <div class="col-left">
-            <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=5.0665882229805%2C47.31022545344388%2C5.070107281208039%2C47.31178761991672&amp;layer=mapnik" style="border: 1px solid black"></iframe><br/><small><a href="https://www.openstreetmap.org/?#map=19/47.311007/5.068348">Afficher une carte plus grande</a></small>
+        <!-- ENV-11 : style inline déplacé vers styles.css -->
+            <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=5.0665882229805%2C47.31022545344388%2C5.070107281208039%2C47.31178761991672&amp;layer=mapnik"></iframe><br/><small><a href="https://www.openstreetmap.org/?#map=19/47.311007/5.068348">Afficher une carte plus grande</a></small>
         </div>
         <div class="col-right">
             <h3>Consultez nos réseaux sociaux</h3>
@@ -36,6 +37,6 @@
     
     <div w3-include-html="footer.html"></div>
 
-    <script src="js/utils.js"></script>            
+    <script src="js/utils.min.js"></script>            
 </body>
 </html>

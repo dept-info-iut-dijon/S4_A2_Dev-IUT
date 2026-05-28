@@ -58,10 +58,10 @@ class FiliereDAO
         return this.getData(data);
     }
 
-    private getData(data): Array<Filiere>
+    private getData(data: any[]): Array<Filiere>
     {
         let list = new Array<Filiere>();
-        data.forEach((obj) => {
+        data.forEach((obj: any) => {
             let filiere = new Filiere();
             filiere.id = obj.id;
             filiere.nom = obj.nom;

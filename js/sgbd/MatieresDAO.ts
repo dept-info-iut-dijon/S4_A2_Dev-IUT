@@ -73,10 +73,10 @@ class MatiereDAO
         return this.getData(data);
     }
 
-    private getData(data): Array<Matiere>
+    private getData(data: any[]): Array<Matiere>
     {
         let list = new Array<Matiere>();
-        data.forEach((obj) => {
+        data.forEach((obj: any) => {
             let mat = new Matiere();
             mat.id = obj.id;
             mat.nom = obj.nom;
