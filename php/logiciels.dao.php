@@ -144,11 +144,8 @@ class LogicielsDao
     public function addLogiciel($log)
     {
         $req = "SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?;";
-        if(constant("mode_dev"))
-            $bdname="softs";
-        else
-            $bdname="softs_dev";
-        $val = $this->bdd->queryOne($req,["$bdname","Logiciel"]);
+        $bdname = isset($_ENV['DB_NAME']) ? $_ENV['DB_NAME'] : 'softs';
+        $val = $this->bdd->queryOne($req,[$bdname,"Logiciel"]);
         $req = "INSERT INTO Logiciel(id,nom,version, urlSetup, urlTuto, urlPort,comment,type,visible, urlImage, obsolete, Utilisateurlogin, numero_serie) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?);";
         $this->bdd->execute($req,[$val["id"],$log["nom"],$log["version"],$log["urlSetup"],$log["urlTuto"],$log["urlPort"],$log["comment"],$log["type"],0,$log["urlImage"], $log["obsolete"],$log["user"],$log["numero_serie"]]);
         return $val;
