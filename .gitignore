@@ -7,3 +7,5 @@
 /.vscode
 node_modules
 .idea
+# ENV-17 : fichiers de debug inutiles en production
+*.js.map
