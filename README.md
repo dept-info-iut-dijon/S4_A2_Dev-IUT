@@ -54,26 +54,18 @@ tsc
 ## Architecture de l'application
 
 L'application suit une architecture en couches séparées côté client et côté serveur. Les vues JavaScript communiquent avec le serveur via des appels AJAX vers les scripts PHP, qui retournent des données au format JSON.
+php/ — Scripts serveur PHP. Points d'entrée API, DAOs, authentification, gestion des uploads.
 
-```
-S4_A2_Dev-IUT/
-├── php/              # Couche serveur scripts PHP (API REST légère)
-│   ├── database.php      # Connexion PDO à la base de données
-│   ├── logiciels.dao.php # DAO logiciels
-│   ├── user.dao.php      # DAO utilisateurs
-│   ├── logiciels.php     # Point d'entrée API logiciels
-│   ├── filieres.php      # Point d'entrée API filières
-│   ├── matieres.php      # Point d'entrée API matières
-│   ├── login.php         # Authentification
-│   └── upload.php        # Gestion des fichiers téléversés
-├── js/               # Couche client TypeScript/JavaScript
-│   ├── models/           # Modèles de données (Logiciel, Filiere, Matiere...)
-│   ├── sgbd/             # DAO côté client (appels AJAX vers PHP)
-│   └── views/            # Vues (VueFiche, VueLogiciels, VueHeader...)
-├── css/              # Feuilles de style
-├── install/          # Script SQL d'initialisation
-└── *.html            # Pages de l'application
-```
+js/ : Code client TypeScript transpilé en ES6. Divisé en trois sous-dossiers :
+
+js/models/ : Interfaces TypeScript représentant les entités métier (Logiciel, Filiere, Matiere, Utilisateur).
+js/sgbd/ : DAO client. Appels AJAX vers les endpoints PHP, désérialisation JSON.
+js/views/ : Composants d'affichage. Rendu de la liste, de la fiche détail, de l'éditeur, du header.
+css/ : Feuilles de style de l'application.
+
+files/ : Fichiers téléversés : archives d'installation, tutoriels PDF, versions portables, images. Écrit par upload.php, référencé par les fiches logiciel.
+
+install/ : Script SQL d'initialisation de la base de données.
 
 ## Dépendances
 
