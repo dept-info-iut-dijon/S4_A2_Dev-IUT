@@ -37,7 +37,7 @@ class Database
         $motDePasse = isset($_ENV['DB_PASS']) ? $_ENV['DB_PASS'] : '';
       
         try{
-            $this->pdo = new PDO("mysql:host=$host;dbname=$base",$user,$pass,
+            $this->pdo = new PDO("mysql:host=$hote;dbname=$base", $utilisateur, $motDePasse,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -79,5 +79,6 @@ class Database
     {
         $declaration = $this->pdo->prepare($requete);
         $declaration->execute($parametres);
+        return $this->pdo->lastInsertId();
     }
 }

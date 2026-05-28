@@ -210,6 +210,6 @@ class LogicielsDao
         $id = $logiciel["id"];
         $this->database->executer("DELETE FROM Logiciel_Filiere WHERE LogicielID=?;", [$id]);
         $this->database->executer("DELETE FROM Logiciel_Matiere WHERE LogicielID=?;", [$id]);
-        $this->database->executer("DELETE FROM Logiciel WHERE ID=?;",                [$id]);
+        $this->database->executer("DELETE FROM Logiciel WHERE ID=?;", [$id]);
     }
 }
