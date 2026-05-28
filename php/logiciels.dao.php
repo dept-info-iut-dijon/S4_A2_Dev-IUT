@@ -1,115 +1,77 @@
 <?php
 
 require_once("database.php");
+require_once("constants.php");
 
 class LogicielsDao
 {
-    private Database $bdd ;
+    private Database $database;
 
     /**
      * Initialise l'objet
-     * @param Database $bdd la base de données liée
+     * @param Database $database la base de données liée
      */
-    public function __construct(Database $bdd)
+    public function __construct(Database $database)
     {
-        $this->bdd = $bdd;
+        $this->database = $database;
     }
 
-    private function listByReq(string $req, array $params )
+    private function listerParRequete(string $requete, array $parametres)
     {
-        $data = $this->bdd->queryAll($req,$params);
-        return $data;
+        return $this->database->lireTous($requete, $parametres);
     }
 
-    /**
-     * Colonnes complètes pour vue détail 
-     */
-    private function selectBase()
+    private function construireRequeteBase()
     {
-        $req = "SELECT Logiciel.ID as id, Logiciel.nom as nom,
+        return "SELECT Logiciel.ID as id, Logiciel.nom as nom,
         Logiciel.version as version, Logiciel.urlsetup as urlSetup,
         Logiciel.urltuto as urlTuto, Logiciel.comment as comment,
         Logiciel.type as type, Logiciel.visible as visible,
         Logiciel.urlport as urlPort, Logiciel.urlImage as urlImage,
         Logiciel.obsolete as obsolete, Logiciel.Utilisateurlogin as utilisateur,
-        Logiciel.date_ajout as date_ajout, Logiciel.numero_serie as numero_serie,
-        Utilisateur.nom as utilisateurNom,
-        Utilisateur.statut as utilisateurStatut,
-        Utilisateur.departement as utilisateurDepartement
-        FROM Logiciel
-        LEFT JOIN Utilisateur ON Utilisateur.login = Logiciel.Utilisateurlogin ";
-        return $req;
+        Logiciel.date_ajout as date_ajout, Logiciel.numero_serie as numero_serie
+        FROM Logiciel ";
     }
 
-    /**
-     * Colonnes réduites pour vue liste (urlPort, urlImage, numero_serie en moins)
-     */
-    private function selectBaseListe()
-    {
-        $req = "SELECT Logiciel.ID as id, Logiciel.nom as nom,
-        Logiciel.version as version, Logiciel.urlsetup as urlSetup,
-        Logiciel.urltuto as urlTuto, Logiciel.comment as comment,
-        Logiciel.type as type, Logiciel.visible as visible,
-        Logiciel.obsolete as obsolete, Logiciel.Utilisateurlogin as utilisateur,
-        Logiciel.date_ajout as date_ajout,
-        Utilisateur.nom as utilisateurNom,
-        Utilisateur.statut as utilisateurStatut,
-        Utilisateur.departement as utilisateurDepartement
-        FROM Logiciel
-        LEFT JOIN Utilisateur ON Utilisateur.login = Logiciel.Utilisateurlogin ";
-        return $req;
-    }
-
-    private function FiltrePortable()
+    private function filtrePortable()
     {
         return "((urlPort is not null) and (urlPort<>''))";
     }
-    private function FiltreObsolete()
+
+    private function filtreObsolete()
     {
         return "obsolete=0";
     }
 
     /**
      * Liste tous les logiciels de la base
-     * @return mixed un tableau associatif avec le retour de la requête
      * @param boolean $portable indique si l'on souhaite ne garder que les portables ou non
      * @param boolean $cacherObsolete pour indiquer si on cache les logiciels obsolètes ou non
+     * @return mixed un tableau associatif avec le retour de la requête
      */
-    public function listAll($portable, $cacherObs)
+    public function listerTous($portable, $cacherObsolete)
     {
-        $req = $this->selectBaseListe()."WHERE 1=1 ";
-        if($portable)
-        {
-            $req = $req."AND  ".$this->FiltrePortable();
-        }
-        if($cacherObs)
-        {
-            $req = $req." AND ".$this->FiltreObsolete();
-        }
-        $req=$req." ORDER BY Logiciel.nom;";
-        return $this->listByReq($req,array());
+        $requete = $this->construireRequeteBase() . "WHERE 1=1 ";
+        if ($portable)      $requete .= "AND "  . $this->filtrePortable();
+        if ($cacherObsolete) $requete .= " AND " . $this->filtreObsolete();
+        $requete .= " ORDER BY Logiciel.nom;";
+        return $this->listerParRequete($requete, array());
     }
 
     /**
      * Liste les logiciels liés à une filière
      * @param mixed $id la clé primaire de la filière
      * @param boolean $portable indique si l'on doit ne conserver que les logiciels portables ou non
-     * @return mixed un tableau associatif avec le retour de la requête
      * @param boolean $cacherObsolete pour indiquer si on cache les logiciels obsolètes ou non
+     * @return mixed un tableau associatif avec le retour de la requête
      */
-    public function listByFiliere($id, $portable, $cacherObsolete)
+    public function listerParFiliere($id, $portable, $cacherObsolete)
     {
-        $req = $this->selectBaseListe()."JOIN Logiciel_Filiere ON Logiciel_Filiere.LogicielID=Logiciel.ID WHERE Logiciel_Filiere.FiliereID=? ";
-        if($portable)
-        {
-            $req = $req." AND ".$this->FiltrePortable();
-        }
-        if($cacherObsolete)
-        {
-            $req = $req." AND ".$this->FiltreObsolete();
-        }
-        $req = $req." ORDER BY Logiciel.nom;";
-        return $this->listByReq($req,array($id));
+        $requete = $this->construireRequeteBase() . "JOIN Logiciel_Filiere ON Logiciel_Filiere.LogicielID=Logiciel.ID WHERE Logiciel_Filiere.FiliereID=? ";
+        if ($portable)      $requete .= " AND " . $this->filtrePortable();
+        if ($cacherObsolete) $requete .= " AND " . $this->filtreObsolete();
+        $requete .= " ORDER BY Logiciel.nom;";
+        return $this->listerParRequete($requete, array($id));
     }
 
     /**
@@ -119,15 +81,13 @@ class LogicielsDao
      * @param boolean $cacherObsolete pour indiquer si on cache les logiciels obsolètes ou non
      * @return mixed un tableau associatif avec le retour de la requête
      */
-    public function listByMatiere($id, $portable, $cacherObsolete)
+    public function listerParMatiere($id, $portable, $cacherObsolete)
     {
-        $req = $this->selectBaseListe()."JOIN Logiciel_Matiere ON Logiciel_Matiere.LogicielID=Logiciel.ID WHERE Logiciel_Matiere.MatiereID=? ";
-        if($portable)
-            $req = $req." AND ".$this->FiltrePortable();
-        if($cacherObsolete)
-            $req = $req." AND ".$this->FiltreObsolete();
-        $req = $req." ORDER BY Logiciel.nom;";
-        return $this->listByReq($req, array($id));
+        $requete = $this->construireRequeteBase() . "JOIN Logiciel_Matiere ON Logiciel_Matiere.LogicielID=Logiciel.ID WHERE Logiciel_Matiere.MatiereID=? ";
+        if ($portable)      $requete .= " AND " . $this->filtrePortable();
+        if ($cacherObsolete) $requete .= " AND " . $this->filtreObsolete();
+        $requete .= " ORDER BY Logiciel.nom;";
+        return $this->listerParRequete($requete, array($id));
     }
 
     /**
@@ -137,115 +97,119 @@ class LogicielsDao
      * @param boolean $cacherObsolete pour indiquer si on cache les logiciels obsolètes ou non
      * @return mixed un tableau associatif avec le retour de la requête
      */
-    public function listByName($nom, $portable, $cacherObsolete)
+    public function listerParNom($nom, $portable, $cacherObsolete)
     {
-        $req = $this->selectBaseListe()."WHERE Logiciel.nom LIKE ? ";
-        if($portable)
-            $req = $req." AND ".$this->FiltrePortable();
-        if($cacherObsolete)
-            $req = $req." AND ".$this->FiltreObsolete();
-        $req = $req." ORDER BY Logiciel.nom, Logiciel.version;";
-        return $this->listByReq($req,array("%$nom%"));
+        $requete = $this->construireRequeteBase() . "WHERE Logiciel.nom LIKE ? ";
+        if ($portable)      $requete .= " AND " . $this->filtrePortable();
+        if ($cacherObsolete) $requete .= " AND " . $this->filtreObsolete();
+        $requete .= " ORDER BY Logiciel.nom, Logiciel.version;";
+        return $this->listerParRequete($requete, array("%$nom%"));
     }
 
     /**
-     * Liste le logiciel répondant à l'ID fournie
-     * @param number $id
+     * Liste le logiciel répondant à l'ID fourni
+     * @param int $id identifiant du logiciel
      * @return mixed un tableau associatif avec le retour de la requête
      */
-    public function listById($id)
+    public function listerParId($id)
     {
-        $req = $this->selectBase()."WHERE id=? ORDER BY Logiciel.nom, Logiciel.version";
-        return $this->listByReq($req,array("$id"));
+        $requete = $this->construireRequeteBase() . "WHERE id=? ORDER BY Logiciel.nom, Logiciel.version";
+        return $this->listerParRequete($requete, array("$id"));
     }
 
     /**
-     * Modifie le logiciel dans la BDD
-     * @param mixed $log le logiciel sous forme d'un tableau associatif
+     * Modifie le logiciel dans la base de données
+     * @param mixed $logiciel le logiciel sous forme d'un tableau associatif
      */
-    public function majLogiciel($log)
+    public function mettreAJourLogiciel($logiciel)
     {
-        $req = "UPDATE Logiciel SET nom=?, version=?, urlSetup=?, urlTuto=?, comment=?, type=?, urlPort=?, urlImage=?, obsolete=?,numero_serie=?  WHERE id=?";
-        $this->bdd->execute($req,array($log["nom"],$log["version"],$log["urlSetup"],$log["urlTuto"],$log["comment"],$log["type"],$log["urlPort"],$log["urlImage"],$log["obsolete"],$log["numero_serie"],$log["id"]));
+        $requete = "UPDATE Logiciel SET nom=?, version=?, urlSetup=?, urlTuto=?, comment=?, type=?, urlPort=?, urlImage=?, obsolete=?, numero_serie=? WHERE id=?";
+        $this->database->executer($requete, array(
+            $logiciel["nom"], $logiciel["version"], $logiciel["urlSetup"], $logiciel["urlTuto"],
+            $logiciel["comment"], $logiciel["type"], $logiciel["urlPort"], $logiciel["urlImage"],
+            $logiciel["obsolete"], $logiciel["numero_serie"], $logiciel["id"]
+        ));
     }
 
     /**
-     * AJoute un logiciel à la base
-     * @param mixed $log le logiciel sous forme d'un tableau associatif
-     * @return mixed un objet contenant un champ id qui contient un champ AUTO_INCREMENT, contenant l'id du logiciel
+     * Ajoute un logiciel à la base de données
+     * @param mixed $logiciel le logiciel sous forme d'un tableau associatif
+     * @return mixed un tableau contenant l'AUTO_INCREMENT du logiciel inséré
      */
-    public function addLogiciel($log)
+    public function ajouterLogiciel($logiciel)
     {
-        $req = "SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?;";
-        if(constant("mode_dev"))
-            $bdname="softs";
-        else
-            $bdname="softs_dev";
-        $val = $this->bdd->queryOne($req,["$bdname","Logiciel"]);
-        $req = "INSERT INTO Logiciel(id,nom,version, urlSetup, urlTuto, urlPort,comment,type,visible, urlImage, obsolete, Utilisateurlogin, numero_serie) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?);";
-        $this->bdd->execute($req,[$val["id"],$log["nom"],$log["version"],$log["urlSetup"],$log["urlTuto"],$log["urlPort"],$log["comment"],$log["type"],0,$log["urlImage"], $log["obsolete"],$log["user"],$log["numero_serie"]]);
-        return $val;
+        $requeteAutoIncrement = "SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?;";
+        $nomBase       = isset($_ENV['DB_NAME']) ? $_ENV['DB_NAME'] : 'softs';
+        $autoIncrement = $this->database->lireUn($requeteAutoIncrement, [$nomBase, "Logiciel"]);
+        $requeteInsert = "INSERT INTO Logiciel(id, nom, version, urlSetup, urlTuto, urlPort, comment, type, visible, urlImage, obsolete, Utilisateurlogin, numero_serie) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?);";
+        $this->database->executer($requeteInsert, [
+            $autoIncrement["AUTO_INCREMENT"], $logiciel["nom"], $logiciel["version"],
+            $logiciel["urlSetup"], $logiciel["urlTuto"], $logiciel["urlPort"],
+            $logiciel["comment"], $logiciel["type"], 0, $logiciel["urlImage"],
+            $logiciel["obsolete"], $logiciel["user"], $logiciel["numero_serie"]
+        ]);
+        return $autoIncrement;
     }
 
+    /**
+     * Pagine un résultat de requête
+     */
     private function pagineResult(string $countReq, array $countParams, string $dataReq, array $dataParams, int $page, int $limite): array
     {
-        $total = intval($this->bdd->queryOne($countReq, $countParams)["total"]);
-        $offset = ($page - 1) * $limite;
-        $logiciels = $this->bdd->queryAll($dataReq . " ORDER BY Logiciel.nom LIMIT " . intval($limite) . " OFFSET " . intval($offset) . ";", $dataParams);
+        $total     = intval($this->database->lireUn($countReq, $countParams)["total"]);
+        $offset    = ($page - 1) * $limite;
+        $logiciels = $this->database->lireTous(
+            $dataReq . " ORDER BY Logiciel.nom LIMIT " . intval($limite) . " OFFSET " . intval($offset) . ";",
+            $dataParams
+        );
         return array("logiciels" => $logiciels, "total" => $total, "page" => $page, "limite" => $limite);
     }
 
     public function listAllPagine($portable, $cacherObs, $page, $limite)
     {
         $where = "WHERE 1=1 ";
-        if ($portable) $where .= "AND " . $this->FiltrePortable() . " ";
-        if ($cacherObs) $where .= "AND " . $this->FiltreObsolete() . " ";
+        if ($portable) $where .= "AND " . $this->filtrePortable() . " ";
+        if ($cacherObs) $where .= "AND " . $this->filtreObsolete() . " ";
         $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $where;
-        return $this->pagineResult($countReq, array(), $this->selectBaseListe() . $where, array(), $page, $limite);
+        return $this->pagineResult($countReq, array(), $this->construireRequeteBase() . $where, array(), $page, $limite);
     }
 
     public function listByFilierePagine($id, $portable, $cacherObs, $page, $limite)
     {
         $join = "JOIN Logiciel_Filiere ON Logiciel_Filiere.LogicielID=Logiciel.ID WHERE Logiciel_Filiere.FiliereID=? ";
-        if ($portable) $join .= "AND " . $this->FiltrePortable() . " ";
-        if ($cacherObs) $join .= "AND " . $this->FiltreObsolete() . " ";
+        if ($portable) $join .= "AND " . $this->filtrePortable() . " ";
+        if ($cacherObs) $join .= "AND " . $this->filtreObsolete() . " ";
         $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $join;
-        return $this->pagineResult($countReq, array($id), $this->selectBaseListe() . $join, array($id), $page, $limite);
+        return $this->pagineResult($countReq, array($id), $this->construireRequeteBase() . $join, array($id), $page, $limite);
     }
 
     public function listByMatierePagine($id, $portable, $cacherObs, $page, $limite)
     {
         $join = "JOIN Logiciel_Matiere ON Logiciel_Matiere.LogicielID=Logiciel.ID WHERE Logiciel_Matiere.MatiereID=? ";
-        if ($portable) $join .= "AND " . $this->FiltrePortable() . " ";
-        if ($cacherObs) $join .= "AND " . $this->FiltreObsolete() . " ";
+        if ($portable) $join .= "AND " . $this->filtrePortable() . " ";
+        if ($cacherObs) $join .= "AND " . $this->filtreObsolete() . " ";
         $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $join;
-        return $this->pagineResult($countReq, array($id), $this->selectBaseListe() . $join, array($id), $page, $limite);
+        return $this->pagineResult($countReq, array($id), $this->construireRequeteBase() . $join, array($id), $page, $limite);
     }
 
     public function listByNamePagine($nom, $portable, $cacherObs, $page, $limite)
     {
         $where = "WHERE Logiciel.nom LIKE ? ";
-        if ($portable) $where .= "AND " . $this->FiltrePortable() . " ";
-        if ($cacherObs) $where .= "AND " . $this->FiltreObsolete() . " ";
+        if ($portable) $where .= "AND " . $this->filtrePortable() . " ";
+        if ($cacherObs) $where .= "AND " . $this->filtreObsolete() . " ";
         $countReq = "SELECT COUNT(*) as total FROM Logiciel " . $where;
-        return $this->pagineResult($countReq, array("%$nom%"), $this->selectBaseListe() . $where, array("%$nom%"), $page, $limite);
+        return $this->pagineResult($countReq, array("%$nom%"), $this->construireRequeteBase() . $where, array("%$nom%"), $page, $limite);
     }
 
     /**
-     * Supprime le logiciel de la BDD
-     * @param mixed $log le logiciel à supprimer, sous forme d'un [] associatif
+     * Supprime le logiciel de la base de données
+     * @param mixed $logiciel le logiciel à supprimer, sous forme d'un tableau associatif
      */
-    public function delLogiciel($log)
+    public function supprimerLogiciel($logiciel)
     {
-        $id = $log["id"];
-        $req = "DELETE FROM Logiciel_Filiere WHERE LogicielID=?;";
-        $this->bdd->execute($req,[$id]);
-        $req = "DELETE FROM Logiciel_Matiere WHERE LogicielID=?;";
-        $this->bdd->execute($req,[$id]);
-        $req = "DELETE FROM Logiciel WHERE ID=?;";
-        $this->bdd->execute($req,[$id]);
+        $id = $logiciel["id"];
+        $this->database->executer("DELETE FROM Logiciel_Filiere WHERE LogicielID=?;", [$id]);
+        $this->database->executer("DELETE FROM Logiciel_Matiere WHERE LogicielID=?;", [$id]);
+        $this->database->executer("DELETE FROM Logiciel WHERE ID=?;", [$id]);
     }
 }
-
-?>
-

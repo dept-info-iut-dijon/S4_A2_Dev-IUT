@@ -1,8 +1,19 @@
 <?php
+/**
+ * Point d'entrée pour l'authentification des utilisateurs.
+ * Vérifie les identifiants transmis via POST et ouvre une session
+ * si l'authentification réussit.
+ *
+ * Paramètres POST acceptés :
+ * - login : identifiant de l'utilisateur
+ * - password : mot de passe hashé en SHA-256 côté client
+ *
+ * Retourne un JSON : {"result":"ok"} ou {"result":"error"}
+ */
 require_once("database.php");
 require_once("user.dao.php");
 
-    //if(isset($_POST["login"]))
+    if(isset($_POST["login"]))
     {
         $bdd = new Database();
         $dao = new UserDao($bdd);

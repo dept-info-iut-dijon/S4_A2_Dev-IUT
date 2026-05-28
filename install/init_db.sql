@@ -367,8 +367,8 @@ CREATE TABLE `utilisateur` (
 --
 
 INSERT INTO `utilisateur` (`login`, `role`, `nom`, `departement`, `statut`, `hashpass`, `mail`) VALUES
-('admin', 1, 'Administrator', 'INFO', 'administrateur', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'admin@iut-dijon.u-bourgogne.fr'),
-('prof', 2, 'Enseignant INFO', 'INFO', 'enseignant', '31f7a65e315586ac198bd798b6629ce4903d0899476d5741a9f32e2e521b6a66', 'prof@iut-dijon.u-bourgogne.fr');
+('admin', 1, 'Administrator', 'INFO', 'enseignant', '$2y$10$gAaiZtYmYM0g9HNPsia06u11XLdYPXbqbvd7AoT0DCg79M/j46mOi', 'admin@iut-dijon.u-bourgogne.fr'),
+('prof', 2, 'Enseignant INFO', 'INFO', 'enseignant', '$2y$10$ZGBM4WF.w2LpAuZBR6hpPOiTF4qkPbeAXhwm7Cg5zKMBscs4i83BC', 'prof@iut-dijon.u-bourgogne.fr');
 
 --
 -- Index pour les tables déchargées

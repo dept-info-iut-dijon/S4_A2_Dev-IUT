@@ -30,12 +30,11 @@ class Login{
      * @returns true si le serveur a accepté la connexion     
      */
     public async loginUser(login:string, pass:string):Promise<boolean> {
-        let hashPass = await this.hash(pass);
         let ok = await $.ajax({
             method:"post",
             url:"php/login.php",
             dataType:"json",
-            data: {"login":login, "password":hashPass},
+            data: {"login":login, "password":pass},
             error:(obj, status, error) => { console.log(error); } // todo better
         }) ;
         return ok.result=="ok";

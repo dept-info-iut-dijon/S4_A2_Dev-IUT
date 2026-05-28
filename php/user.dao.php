@@ -1,75 +1,57 @@
 <?php
 require_once("database.php");
-
+require_once("constants.php");
 
 class UserDao
 {
-    private Database $bdd;
+    private Database $database;
+
     /**
      * Initialise l'objet
      * @param Database $bdd la base de données liée
      */
-    public function __construct(Database $bdd)
+    public function __construct(Database $database)
     {
-        $this->bdd = $bdd;
+        $this->database = $database;
     }
 
-    /**
+     /**
      * Read a user
      * @param string $login the login
      * @return mixed user on array
      */
-    public function readUser($login){
-        $req = "SELECT * FROM Utilisateur WHERE login=?";
-        return $this->bdd->queryOne($req,[$login]);
+    public function lireUtilisateur($login)
+    {
+        $requete = "SELECT * FROM Utilisateur WHERE login=?";
+        return $this->database->lireUn($requete, [$login]);
     }
-    
-    /**
-     * Add a user, if not exists, in BDD
-     * @param mixed $user
-     * @return bool true if the user has been added
-     */
-    public function addUser($user){        
-        $added=false;
-        $req = "INSERT INTO Utilisateur(login,nom,statut,departement,role) VALUES(?,?,?,?,2);";
-        $this->bdd->execute($req,[$user["login"],$user["nom"],$user["statut"],$user["departement"]]);
-        $added=true;
-        return $added;
+
+    public function ajouterUtilisateur($utilisateur)
+    {
+        $empreinte = password_hash($utilisateur["password"], PASSWORD_BCRYPT);
+        $requete = "INSERT INTO Utilisateur(login, nom, statut, departement, role, hashpass) VALUES(?,?,?,?," . ROLE_PROF . ",?)";
+        $this->database->executer($requete, [
+            $utilisateur["login"], $utilisateur["nom"],
+            $utilisateur["statut"], $utilisateur["departement"], $empreinte
+        ]);
+        return true;
     }
 }
-if(isset($_POST["action"]))
-{
-    session_start();
-    if (!isset($_SESSION['login'])) 
-    {
-        http_response_code(401);
-        echo json_encode(["error" => "Non authentifié"]);
-        exit;
+
+if (isset($_POST["action"])) {
+    $database = new Database();
+    $daoUtilisateur = new UserDao($database);
+
+    if ($_POST["action"] === "read" && isset($_POST["login"])) {
+        echo json_encode($daoUtilisateur->lireUtilisateur($_POST["login"]));
     }
-
-    $bdd = new Database();
-    $dao = new UserDao($bdd);
-
-    $action=$_POST["action"];
-    if($action=="read" && isset($_POST["login"]))
-    {
-        $result = $dao->readUser($_POST["login"]);
-        if ($result) {
-            unset($result['hashpass']); // pour ne pas exposer le hash et donc eviter les rainbow table
+    else if ($_POST["action"] === "add") {
+        try {
+            $resultat = $daoUtilisateur->ajouterUtilisateur($_POST);
+            echo json_encode(["response" => "ok", "message" => $resultat]);
         }
-        echo json_encode($result);
-    }
-    else if($action=="add")
-    {
-
-        try{
-            $ret=$dao->addUser($_POST);
-            echo json_encode(["response"=>"ok","message"=>$ret]);
-        }
-        catch(Exception $e){
-            $msg = $e->getMessage();
-            echo json_encode(["response"=>"ok", "message"=>$msg]);            
+        catch (Exception $exception) {
+            echo json_encode(["response" => "error", "message" => $exception->getMessage()]);
         }
     }
 }
-?>

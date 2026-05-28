@@ -38,12 +38,11 @@ class Login {
      */
     loginUser(login, pass) {
         return __awaiter(this, void 0, void 0, function* () {
-            let hashPass = yield this.hash(pass);
             let ok = yield $.ajax({
                 method: "post",
                 url: "php/login.php",
                 dataType: "json",
-                data: { "login": login, "password": hashPass },
+                data: { "login": login, "password": pass },
                 error: (obj, status, error) => { console.log(error); } // todo better
             });
             return ok.result == "ok";
