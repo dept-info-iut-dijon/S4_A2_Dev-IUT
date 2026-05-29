@@ -23,10 +23,12 @@ try {
             echo json_encode(["result" => "ok"]);
         }
         else if ($_GET["action"] === "insert") {
+            require_admin();
             $id = $daoLogiciels->ajouterLogiciel($_GET);
             echo json_encode(["id" => $id]);
         }
         else if ($_GET["action"] === "delete") {
+            require_admin();
             $daoLogiciels->supprimerLogiciel($_GET);
             echo json_encode(["result" => "ok"]);
         }

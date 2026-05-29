@@ -1,10 +1,7 @@
 <?php
+require_once("auth.php");
 session_start();
-if (!isset($_SESSION["login"])) {
-    http_response_code(401);
-    echo "Non authentifié";
-    exit;
-}
+require_login();
 
 $typesAutorises = [
     'application/pdf',
@@ -19,54 +16,47 @@ $typesAutorises = [
 ];
 $tailleMax = 200 * 1024 * 1024;
 
-
-session_start();
-if (!isset($_SESSION['login'])) {
-    http_response_code(401);
-    echo json_encode(["error" => "Non authentifié"]);
-    exit;
-}
 if (!isset($_FILES['file']['name'])) {
-    echo "Aucun fichier recu";
+    http_response_code(400);
+    echo json_encode(["error" => "Aucun fichier reçu"]);
     exit;
 }
 
 $extensions = ['jpg', 'jpeg', 'png', 'ico', 'gif', 'pdf', 'docx', '7z', 'zip', 'tgz', 'exe'];
-
-if(isset($_FILES['file']['name'])){
-    $ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
-    if (!in_array($ext, $extensions)) 
-    {
-        http_response_code(400);
-        echo json_encode(["error" => "Extension non autorisée"]);
-        exit;
-    }
-    // file name
-    $filename = $_FILES['file']['name'];
+$ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
+if (!in_array($ext, $extensions)) {
+    http_response_code(400);
+    echo json_encode(["error" => "Extension non autorisée"]);
+    exit;
+}
 
 $src      = $_FILES['file']['tmp_name'];
 $filename = basename($_FILES['file']['name']);
 $location = __DIR__ . "/../files/" . $filename;
 
 if ($_FILES['file']['size'] > $tailleMax) {
-    echo "Fichier trop volumineux (maximum 200 Mo)";
+    http_response_code(400);
+    echo json_encode(["error" => "Fichier trop volumineux (maximum 200 Mo)"]);
     exit;
 }
 
 $finfo = new finfo(FILEINFO_MIME_TYPE);
 $mime  = $finfo->file($src);
 if (!in_array($mime, $typesAutorises)) {
-    echo "Type de fichier non autorisé";
+    http_response_code(400);
+    echo json_encode(["error" => "Type de fichier non autorisé"]);
     exit;
 }
 
 if (!is_uploaded_file($src)) {
-    echo "Erreur lors de la réception du fichier";
+    http_response_code(400);
+    echo json_encode(["error" => "Erreur lors de la réception du fichier"]);
     exit;
 }
 
 if (move_uploaded_file($src, $location)) {
-    echo "Fichier $filename uploadé avec succès";
+    echo json_encode(["success" => "Fichier $filename uploadé avec succès"]);
 } else {
-    echo "Erreur lors de la copie du fichier";
+    http_response_code(500);
+    echo json_encode(["error" => "Erreur lors de la copie du fichier"]);
 }

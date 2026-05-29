@@ -3,11 +3,7 @@ require_once("database.php");
 require_once("auth.php");
 
 session_start();
-if (!isset($_SESSION["login"])) {
-    http_response_code(401);
-    echo json_encode(["error" => "Non authentifié"]);
-    exit;
-}
+require_login();
 
 $database = new Database();
 $liste    = array();

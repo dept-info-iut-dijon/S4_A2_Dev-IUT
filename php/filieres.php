@@ -14,23 +14,12 @@
 require_once("database.php");
 require_once("auth.php");
 
-
 session_start();
-if (!isset($_SESSION["login"])) {
-    http_response_code(401);
-    echo json_encode(["error" => "Non authentifié"]);
-    exit;
-}
+require_login();
 
 $database = new Database();
 $liste    = array();
 
-require_login();
-
-/* liste les filières */
-require_once("database.php");
-$bdd = new Database();
-$list = array();
 if(isset($_GET["action"]))
 {
     require_admin();
@@ -38,7 +27,7 @@ if(isset($_GET["action"]))
     {
         $id = $_GET["idlog"];
         $req = "DELETE FROM Logiciel_Filiere WHERE LogicielID=?";
-        $bdd->execute($req,array($id));
+        $database->execute($req,array($id));
     }
     else if ($_GET["action"] === "insert") {
         $idLogiciel = $_GET["idlog"];
